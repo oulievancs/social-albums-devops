@@ -14,7 +14,7 @@ from common.webUtils import WebUtils
 load_dotenv()
 
 # MongoDB's connection settings
-mongo_uri = os.environ.get("DB_URI")
+mongo_uri = os.environ.get("MONGODB_URI")
 database_name = "MusicAlbums"
 collection_name = "Albums"
 
@@ -36,7 +36,7 @@ that fetched the artists who released albums on the given <data> parameter.
 def get_artists(date):
     str_iso_date = WebUtils.date_str_to_iso_format(date)
 
-    app.logger.debug("Searching for Artists the released date: ", str_iso_date)
+    app.logger.debug("Searching for Artists the released date: %s", str_iso_date)
 
     artists = WebUtils.parse_json(collection.find({"albums.release_date": {"$eq": str_iso_date}}))
 

@@ -86,7 +86,7 @@ def read_csv_from_zip(zip_file_path, csv_file_name):
 
 def main():
     # MongoDB connection settings
-    mongo_uri = os.environ.get("DB_URI")
+    mongo_uri = os.environ.get("MONGODB_URI")
     database_name = "MusicAlbums"
     collection_name = "Albums"
 

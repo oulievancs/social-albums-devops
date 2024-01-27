@@ -69,6 +69,8 @@ def get_user(user_email):
     return jsonify(users)
 
 
+"""Functionality regarding the the indexing of a user by the mail
+and its friends."""
 def search_users(email):
     with neo4JConnection.session() as session:
         return session.execute_read(
