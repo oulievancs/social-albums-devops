@@ -3,7 +3,7 @@ import logging
 import re
 import traceback
 import uuid
-from datetime import datetime
+from datetime import datetime, date
 
 from bson import json_util
 from flask import json, jsonify
@@ -18,8 +18,8 @@ class WebUtils:
         return json.loads(json_util.dumps(data))
 
     @staticmethod
-    def date_str_to_iso_format(date_str):
-        return datetime.strptime(date_str, "%Y-%m-%d")
+    def date_str_to_iso_format(date_str, format="%Y-%m-%d") -> datetime:
+        return datetime.strptime(date_str, format)
 
     @staticmethod
     def dictionary_contains_key(dictionary, key):
@@ -30,7 +30,7 @@ class WebUtils:
         return None
 
     @staticmethod
-    def extract_year(date_str):
+    def extract_year(date_str: str) -> int:
         if date_str:
             parts = date_str.split("-")
         else:
@@ -39,11 +39,11 @@ class WebUtils:
         return int(parts[0])
 
     @staticmethod
-    def get_a_random_string():
+    def get_a_random_string() -> str:
         return str(uuid.uuid4())
 
     @staticmethod
-    def generate_regex_pattern(strings):
+    def generate_regex_pattern(strings) -> re.Pattern[str]:
         # Escape special characters in each string and join them with '|'
         escaped_strings = map(re.escape, strings)
         pattern = '|'.join(escaped_strings)
@@ -129,3 +129,20 @@ class WebUtils:
             params.append("%s")
 
         return ", ".join(params)
+
+    """Converts from ISO string format and remove the time. Check also that is in IS) 8601 format."""
+
+    @staticmethod
+    def date_no_time_from_iso_string(date_string: str) -> date | None:
+        if date_string is None or not WebUtils._is_iso8601_format(str(date_string)):
+            return None
+        return datetime.fromisoformat(str(date_string)).date()
+
+    @staticmethod
+    def _is_iso8601_format(s):
+        try:
+            # Attempt to parse the string as a datetime with ISO 8601 format
+            datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ")
+            return True
+        except ValueError:
+            return False

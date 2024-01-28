@@ -155,12 +155,12 @@ def consume_artist(artists, connection):
             args=(artist["aa"],),
             mysqlResult=connection)
 
+        year = WebUtils.extract_year(WebUtils.dictionary_contains_key(artist, "year"))
+
         if res.rowcount < 1:
             res = mysqlCon.execute(f"""INSERT INTO artist (name, year, ref_aa) VALUES 
             (%s, %s, %s)""",
-                                   args=(artist["artist_name"],
-                                         WebUtils.extract_year(WebUtils.dictionary_contains_key(artist, "year")),
-                                         artist["aa"]),
+                                   args=(artist["artist_name"], year, artist["aa"]),
                                    mysqlResult=connection)
 
             artId = res.lastrowid
@@ -168,7 +168,7 @@ def consume_artist(artists, connection):
             if not res.fetchone[1] == artist["artist_name"]:
                 res_update = mysqlCon.execute(
                     f"""UPDATE artist AS a SET a.name = %s, a.year = %s WHERE a.ref_aa = %s""",
-                    (artist["artist_name"], WebUtils.dictionary_contains_key(artist, "year")),
+                    (artist["artist_name"], year, artist["aa"]),
                     mysqlResult=connection
                 )
 
@@ -183,10 +183,15 @@ def consume_artist(artists, connection):
                                      mysqlResult=connection)
 
             if resAl.rowcount < 1:
-                resAl = mysqlCon.execute(f"""INSERT INTO album (name, reviews, avg_rating, ratings, artist_id) VALUES
-                (%s, %s, %s, %s, %s)""",
+                rel_date = WebUtils.dictionary_contains_key(WebUtils.dictionary_contains_key(album, "release_date"),
+                                                        "$date")
+
+                resAl = mysqlCon.execute(f"""INSERT INTO album (name, reviews, avg_rating, ratings, artist_id, release_date) VALUES
+                (%s, %s, %s, %s, %s, %s)""",
                                          args=(album["release_name"], album["review_count"], album["avg_rating"],
-                                               album["rating_count"], artId),
+                                               album["rating_count"], artId,
+                                               WebUtils.date_no_time_from_iso_string(rel_date)
+                                               ),
                                          mysqlResult=connection)
 
                 albumId = resAl.lastrowid

@@ -87,7 +87,8 @@ class MySQLResult:
             connection.close()
 
     def _fetch_all_and_fetch_one(self, cursor):
-        if "insert" not in cursor.statement.lower():
+        if "insert" not in cursor.statement.lower() and "update" not in cursor.statement.lower() \
+                and "delete" not in cursor.statement.lower():
             self._fetchall = cursor.fetchall()
             if cursor.fetchone():
                 self._fetchone = cursor.fetchone()
