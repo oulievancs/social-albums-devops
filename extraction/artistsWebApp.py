@@ -1,10 +1,13 @@
 """An application regarding a Web REST-API that fetches the artists from a MongoDB
 and sends them into a Kafka topic channel."""
 import json
+import logging
 import os
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify
+from flask_parameter_validation import ValidateParameters
+from flask_parameter_validation.parameter_types.route import Route
 from kafka import KafkaProducer
 
 from common.mongoDb import MyMongoClient
@@ -15,8 +18,8 @@ load_dotenv()
 
 # MongoDB's connection settings
 mongo_uri = os.environ.get("MONGODB_URI")
-database_name = "MusicAlbums"
-collection_name = "Albums"
+database_name = os.environ.get("MONGODB_NAME")
+collection_name = os.environ.get("MONGODB_COLLECTION_NAME")
 
 PORT = os.environ.get("ARTISTS_PORT")
 TOPIC = os.environ.get("KAFKA_TOPIC_ARTISTS")
@@ -28,17 +31,21 @@ app = Flask(__name__)
 
 """
 A route GET regarding the artists that are located on a MondoDB collection,
-that fetched the artists who released albums on the given <data> parameter.
+that fetched the artists who released from the given year_from year until
+the given year_to year.
 """
 
 
-@app.route("/get_artists/<date>", methods=["GET"])
-def get_artists(date):
-    str_iso_date = WebUtils.date_str_to_iso_format(date)
+@app.route("/get_artists/<string:year_from>/<string:year_to>", methods=["GET"])
+@ValidateParameters()
+def get_artists(year_from: str = Route(str, func=WebUtils.generate_date_validation(r"^\d{4}$")),
+                year_to: str = Route(str, func=WebUtils.generate_date_validation(r"^\d{4}$"))):
+    vyear_from = WebUtils.start_of_year(int(year_from))
+    vyear_to = WebUtils.end_of_year(int(year_to))
 
-    app.logger.debug("Searching for Artists the released date: %s", str_iso_date)
+    app.logger.debug(f"""Searching for Artists the released date between {vyear_from} and {vyear_to}.""")
 
-    artists = WebUtils.parse_json(collection.find({"albums.release_date": {"$eq": str_iso_date}}))
+    artists = WebUtils.parse_json(collection.find({"year": {"$gte": vyear_from, "$lte": vyear_to}}))
 
     send_artists_metadata(artists)
     return jsonify(artists)
@@ -73,4 +80,7 @@ def send_artists_metadata(metadata):
 
 
 if __name__ == "__main__":
+    logging.basicConfig()
+    logging.root.setLevel(logging.INFO)
+
     app.run(host="0.0.0.0", port=PORT, debug=True)

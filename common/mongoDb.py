@@ -1,10 +1,11 @@
 """Regarding functionalities of MongoDB."""
 from pymongo import MongoClient
+from pymongo.collection import Collection
 
 
 class MyMongoClient:
     @staticmethod
-    def connect_to_mongodb(mongo_uri, database_name, collection_name):
+    def connect_to_mongodb(mongo_uri, database_name, collection_name) -> tuple[Collection, MongoClient]:
         try:
             client = MongoClient(mongo_uri)
             db = client[database_name]

@@ -8,6 +8,7 @@ import os
 
 import pandas as pd
 from dotenv import load_dotenv
+from neo4j import ManagedTransaction
 
 from common.neo4JConnection import Neo4JConnection
 
@@ -25,45 +26,55 @@ database = os.environ.get("DB_NEO4J_DATABASE_NAME")
 
 
 class UserNeo4JConnection(Neo4JConnection):
+    """Neo4J functionality regarding graph creation by the data provided on given csv file.
+    Created the users and its associations."""
+
     @staticmethod
-    def insert_data(tx, user_data):
+    def insert_data(tx: ManagedTransaction, user_data):
         query = (
-            "CREATE (u:User {id: $id, first_name: $first_name, last_name: $last_name, "
-            "email: $email, gender: $gender, artist_ids: $artist_ids})"
+            """CREATE (u:User {id: $id, first_name: $first_name, last_name: $last_name, 
+            email: $email, gender: $gender, artist_ids: $artist_ids})"""
         )
         tx.run(query, **user_data)
 
         for friend_id in user_data["friends"]:
-            tx.run("MATCH (u1:User {id: $id}), (u2:User {id: $friend_id}) "
-                   "CREATE (u1)-[:FRIENDS]->(u2)",
+            tx.run("""MATCH (u1:User {id: $id}), (u2:User {id: $friend_id}) 
+                   CREATE (u1)-[:FRIENDS]->(u2)""",
                    id=user_data["id"], friend_id=friend_id)
 
+    """Connects to the Neo4J database, reads the given csv file of Dummy data of users
+    and create the Neo4J graph of a dummy social network."""
 
-# Connect to Neo4j and execute the script
-try:
-    with UserNeo4JConnection(uri, username, password, database) as driver:
-        with driver.session() as session:
-            # Read the modified dataset
-            df = pd.read_csv("resources/MOCK_DATA_OUT.csv")
 
-            # Iterate over each row in the DataFrame
-            for _, row in df.iterrows():
-                # Convert JSON string to list for friends
-                friends = json.loads(row["friends"])
+def main():
+    try:
+        with UserNeo4JConnection(uri, username, password, database) as driver:
+            with driver.session() as session:
+                # Read the modified dataset
+                df = pd.read_csv("resources/MOCK_DATA_OUT.csv")
 
-                # Prepare data to be inserted into Neo4j
-                user_data = {
-                    "id": row["id"],
-                    "first_name": row["first_name"],
-                    "last_name": row["last_name"],
-                    "email": row["email"],
-                    "gender": row["gender"],
-                    "artist_ids": json.loads(row["artist_ids"]),
-                    "friends": friends
-                }
+                # Iterate over each row in the DataFrame
+                for _, row in df.iterrows():
+                    # Convert JSON string to list for friends
+                    friends = json.loads(row["friends"])
 
-                # Insert data into Neo4j
-                session.write_transaction(UserNeo4JConnection.insert_data, user_data)
-    print("User graph created successfully!")
-except Exception as e:
-    print(f"Error: {e}")
+                    # Prepare data to be inserted into Neo4j
+                    user_data = {
+                        "id": row["id"],
+                        "first_name": row["first_name"],
+                        "last_name": row["last_name"],
+                        "email": row["email"],
+                        "gender": row["gender"],
+                        "artist_ids": json.loads(row["artist_ids"]),
+                        "friends": friends
+                    }
+
+                    # Insert data into Neo4j
+                    session.write_transaction(UserNeo4JConnection.insert_data, user_data)
+        print("User graph created successfully!")
+    except Exception as e:
+        print(f"Error: {e}")
+
+
+if __name__ == "__main__":
+    main()

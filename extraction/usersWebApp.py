@@ -1,10 +1,12 @@
 """An application regarding the Web REST-API that fetched the users from a Neo4J DB
 and sends them into a Kafka topic channel"""
 import json
+import logging
 import os
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify
+from flask_parameter_validation import ValidateParameters, Route
 from kafka import KafkaProducer
 
 from common.neo4JConnection import Neo4JConnection
@@ -54,12 +56,14 @@ neo4JConnection = UserNeo4JConnection(uri, username, password, database).driver
 
 """
 A route GET regarding the user with email the requesting email, fetch the user
-and its friends.
+and its friends. Also, a validator initiated in order to accept only strings that
+includes the @.
 """
 
 
-@app.route("/get_users/<user_email>", methods=["GET"])
-def get_user(user_email):
+@app.route("/get_users/<string:user_email>", methods=["GET"])
+@ValidateParameters()
+def get_user(user_email: str = Route(str, func=WebUtils.generate_date_validation(r"[^@]+@[^@]+\.[^@]+"))):
     app.logger.debug("Searching for user and its friends regarding name [%s].", user_email)
 
     users = WebUtils.parse_json(search_users(user_email))
@@ -71,6 +75,8 @@ def get_user(user_email):
 
 """Functionality regarding the the indexing of a user by the mail
 and its friends."""
+
+
 def search_users(email):
     with neo4JConnection.session() as session:
         return session.execute_read(
@@ -103,4 +109,7 @@ def send_users_metadata(metadata):
 
 
 if __name__ == "__main__":
+    logging.basicConfig()
+    logging.root.setLevel(logging.INFO)
+
     app.run(host="0.0.0.0", port=PORT, debug=True)
