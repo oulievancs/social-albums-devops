@@ -22,6 +22,10 @@ class WebUtils:
         return datetime.strptime(date_str, format)
 
     @staticmethod
+    def date_to_str(datetime: date | datetime, format="%Y-%m-%d") -> str:
+        return datetime.strftime(format)
+
+    @staticmethod
     def dictionary_contains_key(dictionary, key):
         for kkey in dictionary:
             if kkey == key:
