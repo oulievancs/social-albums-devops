@@ -19,7 +19,7 @@
         <property name="auto_encode_username_and_password" value="false" />
       </driver-properties>
     </data-source>
-    <data-source source="LOCAL" name="@127.0.0.1" uuid="c27edda6-f5c2-469a-a228-07fa92c60c2f">
+    <data-source source="LOCAL" name="MYSQL@127.0.0.1" uuid="c27edda6-f5c2-469a-a228-07fa92c60c2f">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
