@@ -81,7 +81,7 @@ def get_user_by_email(email: str, connection: MySQLResult) -> {"id": int, "email
     if res_user.rowcount > 0:
         return WebUtils.map_tuple(res_user.fetchone, ["id", "email", "first_name", "last_name", "gender", "ref_aa"])
     else:
-        raise abort(WebUtils.not_found, description=f"""User requested with email [{email}] not found!""")
+        raise abort(WebUtils.NOT_FOUND, description=f"""User requested with email [{email}] not found!""")
 
 
 """Get the albums regarding the provided artist."""
@@ -99,6 +99,8 @@ def get_artist_albums(artist_id: int, connection: MySQLResult) -> [{"id": int, "
 
         for album in albums:
             album["release_date"] = WebUtils.date_to_str(album["release_date"])
+
+        return albums
     else:
         return list()
 
@@ -119,22 +121,6 @@ def get_friends_of_user(user_id: int, connection: MySQLResult) -> set[int]:
         return set()
 
 
-"""Retrieve all the artists that given user listen to."""
-
-
-def get_user_artists(user_id: int, connection: MySQLResult) -> set[int]:
-    res_artists = mysqlCon.execute(
-        f"""SELECT a.artist_id FROM listen AS a WHERE a.user_id = %s""",
-        args=(user_id,),
-        mysqlResult=connection
-    )
-
-    if res_artists.rowcount > 0:
-        return {artist[0] for artist in res_artists.fetchall}
-    else:
-        return set()
-
-
 def get_artists_that_users_friends_listen(friend_user_ids: [int], connection: MySQLResult) -> set[int]:
     return get_artists_in_users(friend_user_ids, None, connection)
 
@@ -143,23 +129,30 @@ def get_artists_regarding_user(user_id: int, connection: MySQLResult) -> set[int
     return get_artists_in_users([user_id], None, connection)
 
 
-"""Functionality regarding the user's artists listened."""
+"""Functionality regarding the user's artists listened excluding dummy artists."""
 
 
 def get_artists_in_users(user_ids: [int], filters: {"descriptors": set[int]}, connection: MySQLResult) -> set[int]:
     if filters is None or filters["descriptors"]:
+        logging.log(logging.INFO, f"ffffffffffffffffff {tuple(user_ids) + (WebUtils.DUMMY_ARTIST_REGEX,)}")
+
         res_artists = mysqlCon.execute(
-            f"""SELECT DISTINCT a.artist_id FROM listen AS a WHERE a.user_id IN ({WebUtils.generate_parameters(len(user_ids))})""",
-            args=(tuple(user_ids)),
+            f"""SELECT DISTINCT a.artist_id FROM listen AS a
+            LEFT JOIN artist AS b ON a.artist_id = b.id
+            WHERE a.user_id IN ({WebUtils.generate_parameters(len(user_ids))}) AND NOT b.name REGEXP %s""",
+            args=(tuple(user_ids) + (WebUtils.DUMMY_ARTIST_REGEX,)),
             mysqlResult=connection
         )
     else:
         res_artists = mysqlCon.execute(
             f"""SELECT DISTINCT a.artist_id FROM listen AS a
+            LEFT JOIN artist AS d ON a.artist_id = d.id
             LEFT JOIN descriptors_asoc AS b ON a.artist_id = b.artist_id
             LEFT JOIN descriptors AS c ON b.descriptor_id = c.id
             WHERE a.user_id IN ({WebUtils.generate_parameters(len(user_ids))})
-            AND c.id IN ({WebUtils.generate_parameters(len(filters['descriptors']))})"""
+            AND c.id IN ({WebUtils.generate_parameters(len(filters['descriptors']))})
+            AND NOT b.name REGEXP %s""",
+            args=(tuple(user_ids) + tuple(filters['descriptors']) + (WebUtils.DUMMY_ARTIST_REGEX,))
         )
 
     if res_artists.rowcount > 0:
@@ -217,7 +210,7 @@ def get_artists_that_friends_listen(user_email: str, connection: MySQLResult):
     friends_ids = get_friends_of_user(user["id"], connection)
     artists_of_friends = get_artists_that_users_friends_listen(friends_ids, connection)
 
-    user_artists = get_user_artists(user["id"], connection)
+    user_artists = get_artists_in_users([user["id"]], None, connection)
 
     excluded_user_s_artists = set(f for f in artists_of_friends if f not in user_artists)
 
@@ -229,7 +222,7 @@ def get_artists_that_friends_listen_on_common_descriptors(user_email: str, conne
     friends_ids = get_friends_of_user(user["id"], connection)
     descriptors = get_descriptors_regarding_user(user["id"], connection)
 
-    user_artists = get_user_artists(user["id"], connection)
+    user_artists = get_artists_in_users([user["id"]], None, connection)
 
     artists_of_friends = get_artists_in_users(friends_ids, {"descriptors": descriptors}, connection)
 

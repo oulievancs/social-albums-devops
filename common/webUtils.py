@@ -10,8 +10,10 @@ from flask import json, jsonify
 
 
 class WebUtils:
-    not_found = 404
-    internal_error = 500
+    NOT_FOUND = 404
+    INTERNAL_ERROR = 500
+
+    DUMMY_ARTIST_REGEX = r"^DUMMY ARTIST [0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
 
     @staticmethod
     def parse_json(data):
@@ -98,13 +100,13 @@ class WebUtils:
     def handle_error(error):
         logging.error(f"""Http Error: {error}!""")
 
-        code = WebUtils.internal_error
+        code = WebUtils.INTERNAL_ERROR
         msg = "Unknown error occurred!"
 
-        if hasattr(error, "code") and error.code == WebUtils.internal_error:
+        if hasattr(error, "code") and error.code == WebUtils.INTERNAL_ERROR:
             msg += f"""An internal server error occurred!"""
         else:
-            code = error.code if hasattr(error, "code") else WebUtils.internal_error
+            code = error.code if hasattr(error, "code") else WebUtils.INTERNAL_ERROR
 
             msg = error.description if hasattr(error, "description") else \
                 (error.message if hasattr(error, "message") else None)
