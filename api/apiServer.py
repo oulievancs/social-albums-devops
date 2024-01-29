@@ -134,8 +134,6 @@ def get_artists_regarding_user(user_id: int, connection: MySQLResult) -> set[int
 
 def get_artists_in_users(user_ids: [int], filters: {"descriptors": set[int]}, connection: MySQLResult) -> set[int]:
     if filters is None or filters["descriptors"]:
-        logging.log(logging.INFO, f"ffffffffffffffffff {tuple(user_ids) + (WebUtils.DUMMY_ARTIST_REGEX,)}")
-
         res_artists = mysqlCon.execute(
             f"""SELECT DISTINCT a.artist_id FROM listen AS a
             LEFT JOIN artist AS b ON a.artist_id = b.id
