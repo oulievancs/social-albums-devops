@@ -133,6 +133,9 @@ class MySqlConnection:
         return MySQLResult(connection)
 
     def execute(self, sql, args=None, commit=False, mysqlResult=None) -> MySQLResult:
+        if mysqlResult is None:
+            raise "You must provide a connection!"
+
         connection = self._pool.get_connection() if mysqlResult is None else mysqlResult.connection
         cursor = connection.cursor(
             buffered=True) if mysqlResult is None or mysqlResult.cursor is None else mysqlResult.cursor

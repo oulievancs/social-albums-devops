@@ -2,6 +2,7 @@
 in a MySQL database and apply intelligent functionalities."""
 import logging
 import os
+from random import randint
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, abort
@@ -66,6 +67,25 @@ def suggest_artists(email: str = Route(str, func=WebUtils.generate_date_validati
     return jsonify(result)
 
 
+"""Route accepting a user's mail and an album."""
+
+
+@app.route("/suggest_album/<string:email>", methods=["GET"])
+@ValidateParameters()
+def suggest_album(email: str = Route(str, func=WebUtils.generate_date_validation(r"[^@]+@[^@]+\.[^@]+"))):
+    result = {}
+
+    connection = None
+    try:
+        connection = mysqlCon.pool_connection()
+        result = get_one_random_album(email, connection)
+    finally:
+        if connection is not None:
+            connection.close_connection()
+
+    return jsonify(result)
+
+
 """Retrieves a user by the provided email address."""
 
 
@@ -87,12 +107,33 @@ def get_user_by_email(email: str, connection: MySQLResult) -> {"id": int, "email
 """Get the albums regarding the provided artist."""
 
 
-def get_artist_albums(artist_id: int, connection: MySQLResult) -> [{"id": int, "name": str, "release_date": str}]:
-    res_albums = mysqlCon.execute(
-        f"""SELECT a.id, a.name, a.release_date FROM album AS a WHERE a.artist_id = %s""",
-        args=(artist_id,),
-        mysqlResult=connection
-    )
+def get_artist_albums(artist_id: int, filters: {"one_random": bool}, connection: MySQLResult) -> [
+    {"id": int, "name": str, "release_date": str}]:
+    one_random = filters and filters["one_random"]
+
+    res_albums = None
+    if one_random:
+        res_count = mysqlCon.execute(
+            f"""SELECT COUNT(a.id) FROM album AS a WHERE a.artist_id = %s""",
+            args=(artist_id,),
+            mysqlResult=connection
+        )
+
+        num = randint(0, res_count.fetchone[0] - 1)
+
+        res_albums = mysqlCon.execute(
+            f"""SELECT a.id, a.name, a.release_date FROM album AS a WHERE a.artist_id = %s
+            ORDER BY a.name
+            LIMIT %s OFFSET %s""",
+            args=(artist_id, 1, num),
+            mysqlResult=connection
+        )
+    else:
+        res_albums = mysqlCon.execute(
+            f"""SELECT a.id, a.name, a.release_date FROM album AS a WHERE a.artist_id = %s""",
+            args=(artist_id,),
+            mysqlResult=connection
+        )
 
     if res_albums.rowcount > 0:
         albums = list(WebUtils.map_tuple(t, ["id", "name", "release_date"]) for t in res_albums.fetchall)
@@ -162,21 +203,44 @@ def get_artists_in_users(user_ids: [int], filters: {"descriptors": set[int]}, co
 """Retrieve the artist's information with id's provied."""
 
 
-def get_artists(artist_ids: [int], connection: MySQLResult) -> {"id": int, "year": str, "name": str,
-                                                                "albums": [
-                                                                    {"id": int, "name": str, "release_date": str}]
-                                                                }:
-    res_artists = mysqlCon.execute(
-        f"""SELECT a.id, a.year, a.name FROM artist AS a WHERE a.id IN({WebUtils.generate_parameters(len(artist_ids))})""",
-        args=(tuple(artist_ids)),
-        mysqlResult=connection
-    )
+def get_artists(artist_ids: [int], filters: {"one_random": bool}, connection: MySQLResult) -> {"id": int, "year": str,
+                                                                                               "name": str,
+                                                                                               "albums": [
+                                                                                                   {"id": int,
+                                                                                                    "name": str,
+                                                                                                    "release_date": str}]
+                                                                                               }:
+    one_random = filters and filters["one_random"]
+    res_artists = None
+
+    if one_random:
+        res_count = mysqlCon.execute(
+            f"""SELECT COUNT(a.id) FROM artist AS a WHERE a.id IN ({WebUtils.generate_parameters(len(artist_ids))})""",
+            args=(tuple(artist_ids)),
+            mysqlResult=connection
+        )
+
+        num = randint(0, res_count.fetchone[0] - 1)
+
+        res_artists = mysqlCon.execute(
+            f"""SELECT a.id, a.year, a.name FROM artist AS a WHERE a.id IN ({WebUtils.generate_parameters(len(artist_ids))})
+            ORDER BY a.name
+            LIMIT %s OFFSET %s""",
+            args=(tuple(artist_ids) + (1, num)),
+            mysqlResult=connection
+        )
+    else:
+        res_artists = mysqlCon.execute(
+            f"""SELECT a.id, a.year, a.name FROM artist AS a WHERE a.id IN({WebUtils.generate_parameters(len(artist_ids))})""",
+            args=(tuple(artist_ids)),
+            mysqlResult=connection
+        )
 
     if res_artists.rowcount > 0:
         res = list(WebUtils.map_tuple(artis, ["id", "year", "name"]) for artis in res_artists.fetchall)
 
         for artist in res:
-            artist["albums"] = get_artist_albums(artist["id"], connection)
+            artist["albums"] = get_artist_albums(artist["id"], filters, connection)
 
         return res
     else:
@@ -212,7 +276,7 @@ def get_artists_that_friends_listen(user_email: str, connection: MySQLResult):
 
     excluded_user_s_artists = set(f for f in artists_of_friends if f not in user_artists)
 
-    return get_artists(excluded_user_s_artists, connection)
+    return get_artists(excluded_user_s_artists, None, connection)
 
 
 def get_artists_that_friends_listen_on_common_descriptors(user_email: str, connection: MySQLResult):
@@ -226,7 +290,24 @@ def get_artists_that_friends_listen_on_common_descriptors(user_email: str, conne
 
     excluded_user_s_artists = set(f for f in artists_of_friends if f not in user_artists)
 
-    return get_artists(excluded_user_s_artists, connection)
+    return get_artists(excluded_user_s_artists, None, connection)
+
+
+"""Fetch one random album regarding common descriptors."""
+
+
+def get_one_random_album(user_email: str, connection: MySQLResult):
+    user = get_user_by_email(user_email, connection)
+    friends_ids = get_friends_of_user(user["id"], connection)
+    descriptors = get_descriptors_regarding_user(user["id"], connection)
+
+    user_artists = get_artists_in_users([user["id"]], None, connection)
+
+    artists_of_friends = get_artists_in_users(friends_ids, {"descriptors": descriptors}, connection)
+
+    excluded_user_s_artists = set(f for f in artists_of_friends if f not in user_artists)
+
+    return get_artists(excluded_user_s_artists, {"one_random": True}, connection)
 
 
 # Handle HTTP errors with a JSON response
