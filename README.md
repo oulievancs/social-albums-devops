@@ -23,5 +23,11 @@ into a *Kafka* topic.
 two *Kafka* consumers into isolated threads, each consumer regarding into each *Kafka*
 topic and load the consumed data's into a *MySQL* database.
 
-* A *Flask* API that provides intelligent suggestions of music albums and artists on
-a requested user, regarding its associations in the social network.
+* A *Flask* API that provides intelligent recommendation of music albums and artists on
+a requested user, regarding its associations in the social network and the preferences 
+of its friends. This module, located on `api/apiServer.py`.
+
+
+Finally, an extra, out of scope module presented on `api/workProjectBackend.py`
+that regarding an example of the FR - front end exercise, and how
+data regarding a *Workplan* can be stored on a *Neo4J* database.
