@@ -35,7 +35,7 @@ class WorkColabNeo4JConnection(Neo4JConnection):
     @staticmethod
     def insert_schema_work_plan(tx, values):
         workplan_query = (
-            """CREATE (w:Workplan {number: $number, description: $description})"""
+            """CREATE (w:Workplan {number: $number, title: $title})"""
         )
 
         result = tx.run(workplan_query, **values)
@@ -45,7 +45,7 @@ class WorkColabNeo4JConnection(Neo4JConnection):
     @staticmethod
     def insert_schema_workpackage(tx, values):
         workpackage_query = (
-            "CREATE (w:Workpackage {number: $number, description: $description})"
+            "CREATE (w:Workpackage {number: $number, description: $description, workpackage_id: $workpackage_id})"
         )
 
         result = tx.run(workpackage_query, **values)
@@ -53,8 +53,8 @@ class WorkColabNeo4JConnection(Neo4JConnection):
     @staticmethod
     def connect_workpackage_to_workplan(tx, values):
         relation_query = (
-            """MATCH (w:Workplan {number: $workplan_number})
-            MATCH (t:Workpackage {number: $workpackage_number})
+            """MATCH (w:Workplan {number: $workplan_id})
+            MATCH (t:Workpackage {number: $workpackage_id})
             CREATE (w)-[:CONTAINS]->(t)"""
         )
 
@@ -65,7 +65,7 @@ class WorkColabNeo4JConnection(Neo4JConnection):
     @staticmethod
     def insert_schema_task(tx, values):
         task_query = (
-            """CREATE (t:Task {number: $number, description: $description})"""
+            """CREATE (t:Task {workpackage_id: $workpackage_id, task_id: $task_id, number: $number, description: $description})"""
         )
 
         result = tx.run(task_query, **values)
@@ -73,8 +73,8 @@ class WorkColabNeo4JConnection(Neo4JConnection):
     @staticmethod
     def connect_task_to_workpackage(tx, values):
         relation_query = (
-            """MATCH (w:Workpackage {number: $workpackage_number})
-            MATCH (t:Task {number: $task_number})
+            """MATCH (w:Workpackage {workpackage_id: $workpackage_id})
+            MATCH (t:Task {task_id: $task_id})
             CREATE (w)-[:CONTAINS]->(t)"""
         )
 
@@ -85,7 +85,7 @@ class WorkColabNeo4JConnection(Neo4JConnection):
     @staticmethod
     def insert_period(tx, values):
         period_query = (
-            """CREATE (p:Period {start_date: $start_date, end_date: $end_date})"""
+            """CREATE (p:Period {period_id: $period_id, start_date: $start_date, end_date: $end_date})"""
         )
 
         result = tx.run(period_query, **values)
@@ -95,8 +95,8 @@ class WorkColabNeo4JConnection(Neo4JConnection):
     @staticmethod
     def connect_task_to_period(tx, values):
         relation_query = (
-            """MATCH (t:Task {number: $task_number})
-            MATCH (p:Period {start_date: $prop_date})
+            """MATCH (t:Task {task_id: $task_id})
+            MATCH (p:Period {period_id: $period_id})
             CREATE (t)-[:HAS_PERIOD]->(p)"""
         )
 
@@ -105,27 +105,11 @@ class WorkColabNeo4JConnection(Neo4JConnection):
         return result
 
     @staticmethod
-    def connect_task_to_period_start_end(session, task_number, start_date, end_date):
-        period_start_connection = {
-            "task_number": task_number,
-            "prop_date": WebUtils.str_to_date(start_date, DATE_TIME_FORMAT)
-        }
-
-        session.write_transaction(WorkColabNeo4JConnection.connect_task_to_period, period_start_connection)
-
-        period_start_connection = {
-            "task_number": task_number,
-            "prop_date": WebUtils.str_to_date(end_date, DATE_TIME_FORMAT)
-        }
-
-        session.write_transaction(WorkColabNeo4JConnection.connect_task_to_period, period_start_connection)
-
-    @staticmethod
     def get_workplan_by_id(tx, values):
         query = (
-            """MATCH (w:Workplan)-[:CONTAINS]-> (wp:Workpackage)-[:CONTAINS]-> (t:Task)-[:HAS_PERIOD]-> (p:Period)
-            WHERE w.number = $workplan_id OR w.title = $workplan_title
-            RETURN w.number AS workplan_number, w.description AS workplan_description, 
+            """MATCH (w:Workplan {number: $workplan_id, title: $workplan_title})-[:CONTAINS]->
+            (wp:Workpackage)-[:CONTAINS]-> (t:Task)-[:HAS_PERIOD]-> (p:Period)
+            RETURN w.number AS workplan_number, w.title AS workplan_description, 
             wp.number AS workpackage_number, wp.description AS workpackage_description,
             t.number AS task_number, t.description AS task_description, 
             p.start_date AS period_start, p.end_date AS period_end"""
@@ -223,14 +207,17 @@ def insert_workplan():
 
         vworkplan = {
             "number": workplan_id,
-            "description": data["title"]
+            "title": data["title"]
         }
 
         # Write workplan header.
         session.write_transaction(WorkColabNeo4JConnection.insert_schema_work_plan, vworkplan)
 
         for workpackage in data["workpackages"]:
+            workpackage_id = WebUtils.get_a_random_string()
+
             vworkpackage = {
+                "workpackage_id": workpackage_id,
                 "number": workpackage["number"],
                 "description": workpackage["description"]
             }
@@ -239,14 +226,18 @@ def insert_workplan():
             session.write_transaction(WorkColabNeo4JConnection.insert_schema_workpackage, vworkpackage)
 
             workpackage_connection = {
-                "workplan_number": workplan_id,
-                "workpackage_number": workpackage["number"]
+                "workplan_id": workplan_id,
+                "workpackage_id": workpackage_id
             }
 
             session.write_transaction(WorkColabNeo4JConnection.connect_workpackage_to_workplan, workpackage_connection)
 
             for task in workpackage["tasks"]:
+                task_id = WebUtils.get_a_random_string()
+
                 vtask = {
+                    "workpackage_id": workpackage_id,
+                    "task_id": task_id,
                     "number": task["number"],
                     "description": task["description"]
                 }
@@ -255,23 +246,30 @@ def insert_workplan():
                 session.write_transaction(WorkColabNeo4JConnection.insert_schema_task, vtask)
 
                 task_connection = {
-                    "workpackage_number": workpackage["number"],
-                    "task_number": vtask["number"]
+                    "workpackage_id": workpackage_id,
+                    "task_id": task_id
                 }
 
                 # Connect each task to workplan.
                 session.write_transaction(WorkColabNeo4JConnection.connect_task_to_workpackage, task_connection)
 
                 for period in task["periods"]:
+                    period_id = WebUtils.get_a_random_string()
                     vperiod = {}
 
                     for key in ["start", "end"]:
                         vperiod[f"{key}_date"] = WebUtils.str_to_date(period[key], DATE_TIME_FORMAT)
 
+                    vperiod["period_id"] = period_id
+
                     session.write_transaction(WorkColabNeo4JConnection.insert_period, vperiod)
 
-                    WorkColabNeo4JConnection.connect_task_to_period_start_end(session, task["number"], period["start"],
-                                                                              period["end"])
+                    period_connection = {
+                        "task_id": task_id,
+                        "period_id": period_id
+                    }
+
+                    session.write_transaction(WorkColabNeo4JConnection.connect_task_to_period, period_connection)
 
     return {"message": f"The workpan inserted sucessfully with id ${workplan_id}!"}
 
