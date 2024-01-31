@@ -123,7 +123,8 @@ class WorkColabNeo4JConnection(Neo4JConnection):
     @staticmethod
     def get_workplan_by_id(tx, values):
         query = (
-            """MATCH (w:Workplan {number: $workplan_id})-[:CONTAINS]-> (wp:Workpackage)-[:CONTAINS]-> (t:Task)-[:HAS_PERIOD]-> (p:Period)
+            """MATCH (w:Workplan)-[:CONTAINS]-> (wp:Workpackage)-[:CONTAINS]-> (t:Task)-[:HAS_PERIOD]-> (p:Period)
+            WHERE w.number = $workplan_id OR w.title = $workplan_title
             RETURN w.number AS workplan_number, w.description AS workplan_description, 
             wp.number AS workpackage_number, wp.description AS workpackage_description,
             t.number AS task_number, t.description AS task_description, 
@@ -140,17 +141,20 @@ app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 
-@app.route("/get_workplan/<string:workplan_id>", methods=["GET"])
-def get_workplan(workplan_id: str):
+@app.route("/get_workplan/<string:text>", methods=["GET"])
+def get_workplan(text: str):
     workplan = {}
 
     with neo4JConnection.session() as session:
-        records = session.read_transaction(WorkColabNeo4JConnection.get_workplan_by_id, {"workplan_id": workplan_id})
+        records = session.read_transaction(WorkColabNeo4JConnection.get_workplan_by_id, {
+            "workplan_id": text,
+            "workplan_title": text
+        })
 
         logging.log(logging.INFO, f"Workplan found = {records}")
 
         if records is None or len(records) == 0:
-            raise abort(WebUtils.NOT_FOUND, description=f"""Workplan with id [{workplan_id}] not found!""")
+            raise abort(WebUtils.NOT_FOUND, description=f"""Workplan with id [{text}] not found!""")
 
         workpackages = dict()
         tasks = dict()
