@@ -5,7 +5,7 @@ the *Kafka*, datasources are extracted and transformed into a relational databas
 creating the associations between music albums and artists that was located into the *MongoDB*
 and users that was located into the *Neo4J DB*.
 
-*API*s are configured in order to provide intelligent ideas, that creates suggestions
+*API*s are configured in order to provide intelligent ideas, that create recommendations
 of music albums and artists to users regarding its associations into the social network.
 
 ---
