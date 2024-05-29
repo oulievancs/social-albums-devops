@@ -1,0 +1,57 @@
+version: '2.4'
+name: 'uni'
+
+services:
+  mongodb:
+    container_name: mongodb-uni
+    image: mongo:latest
+    mem_reservation: 1000m
+    mem_limit: 2000m
+    restart: always
+    ports:
+      - 27018:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=root
+      - TZ=Europe/Athens
+    volumes:
+      - C:/Users/oulis/Documents/data/docker-containers/mongodb-uni/data:/data/db
+      - C:/Users/oulis/Documents/data/docker-containers/mongodb-uni/conf/mongod.conf:/etc/mongod.conf
+      - C:/Users/oulis/Documents/data/docker-containers/mongodb-uni/logs:/var/log/mongodb
+    command:
+      - '--auth'
+      - '-f'
+      - '/etc/mongod.conf'
+  neo4j:
+    container_name: neo4j-uni
+    image: neo4j:latest
+    mem_reservation: 1000m
+    mem_limit: 2000m
+    shm_size: 512mb
+    restart: always
+    ports:
+      - 7474:7474
+      - 7687:7687
+    environment:
+      - NEO4J_AUTH=neo4j/root
+      - NEO4J_dbms_security_auth__minimum__password__length=4
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+    volumes:
+      - C:/Users/oulis/Documents/data/docker-containers/neo4j-uni/data:/data
+      - C:/Users/oulis/Documents/data/docker-containers/neo4j-uni/import:/var/lib/neo4j/import
+      - C:/Users/oulis/Documents/data/docker-containers/neo4j-uni/logs:/logs
+      - C:/Users/oulis/Documents/data/docker-containers/neo4j-uni/plugins:/plugins
+  mysql:
+    container_name: mysql-uni
+    image: mysql:latest
+    mem_limit: 2000m
+    restart: always
+    mem_reservation: 512m
+    ports:
+      - 3312:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - C:/Users/oulis/Documents/data/docker-containers/mysql-uni/data:/var/lib/mysql
+    command:
+      - '--default-authentication-plugin=mysql_native_password'
