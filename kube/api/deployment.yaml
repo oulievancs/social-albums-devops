@@ -1,0 +1,22 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: social-albums-api
+  namespace: social-albums
+  labels:
+    app: social-albums-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: social-albums-api
+  template:
+    metadata:
+      labels:
+        app: social-albums-api
+    spec:
+      containers:
+      - name: social-albums-api
+        image: nginx
+      imagePullSecrets:
+      - name: registry-creds

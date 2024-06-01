@@ -31,3 +31,15 @@ of its friends. This module, located on `api/apiServer.py`.
 Finally, an extra, out of scope module presented on `api/workProjectBackend.py`
 that regarding an example of the FR - front end exercise, and how
 data regarding a *Workplan* can be stored on a *Neo4J* database.
+
+### Kubernetes
+
+#### config-secret
+
+```
+kubectl create secret generic config-secrets -n social-albums \
+  --from-literal=MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
+  --from-literal=MYSQL_DATABASE=${MYSQL_DATABASE} \
+  --from-literal=MYSQL_USER=${MYSQL_USER} \
+  --from-literal=MYSQL_PASSWORD=${MYSQL_PASSWORD}
+```

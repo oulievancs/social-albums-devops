@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: social-albums-api
+  namespace: social-albums
+spec:
+  secretName: api-social-albums-cuccos-org-tls
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+  commonName: "api.social-albums.cuccos.org"
+  dnsNames:
+  - "api.social-albums.cuccos.org"
