@@ -2,30 +2,30 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: social-albums-mysql
-  name: mysql
+    app: social-albums-mongo
+  name: mongo
   namespace: social-albums
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mysql
+      app: mongo
   template:
     metadata:
       labels:
-        app: mysql
+        app: mongo
     spec:
       containers:
         - envFrom:
             - secretRef:
                 name: config-secrets
-          image: mysql:8.0.33
-          name: mysql
+          image: mongo:7.0.5
+          name: mongo
           ports:
-            - containerPort: 3306
+            - containerPort: 27017
           volumeMounts:
-            - mountPath: /var/lib/mysql
-              name: mysql-pvc
+            - mountPath: /data/db
+              name: mongo-pvc
           # resources:
           #   limits:
           #     cpu: 200m
@@ -34,6 +34,6 @@ spec:
           #     cpu: 100m
           #     memory: 100Mi
       volumes:
-        - name: mysql-pvc
+        - name: mongo-pvc
           persistentVolumeClaim:
-            claimName: mysql-pvc
+            claimName: mongo-pvc
