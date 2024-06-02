@@ -38,8 +38,11 @@ data regarding a *Workplan* can be stored on a *Neo4J* database.
 
 ```
 kubectl create secret generic config-secrets -n social-albums \
-  --from-literal=MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
-  --from-literal=MYSQL_DATABASE=${MYSQL_DATABASE} \
-  --from-literal=MYSQL_USER=${MYSQL_USER} \
-  --from-literal=MYSQL_PASSWORD=${MYSQL_PASSWORD}
+  --from-literal=MYSQL_RANDOM_ROOT_PASSWORD=yes \
+  --from-literal=MYSQL_DATABASE=social-music \
+  --from-literal=MYSQL_USER=koukos \
+  --from-literal=MYSQL_PASSWORD=kx12kx12 \
+  --from-literal=MONGO_INITDB_ROOT_USERNAME=kx12kx12 \
+  --from-literal=MONGO_INITDB_ROOT_PASSWORD=kx12kx12 \
+  --from-literal=NEO4J_AUTH=neo4j/fysalida
 ```

@@ -4,6 +4,7 @@ metadata:
   labels:
     app: mysql
   name: mysql
+  namespace: social-albums
 spec:
   ports:
     - port: 3306

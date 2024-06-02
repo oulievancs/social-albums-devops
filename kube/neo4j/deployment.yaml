@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: social-albums-neo4j
+  name: neo4j
+  namespace: social-albums
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: neo4j
+  template:
+    metadata:
+      labels:
+        app: neo4j
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: config-secrets
+          image: neo4j:5.15.0
+          name: neo4j
+          ports:
+            - containerPort: 7474
+            - containerPort: 7687
+          volumeMounts:
+            - mountPath: /data
+              name: neo4j-pvc
+          # resources:
+          #   limits:
+          #     cpu: 200m
+          #     memory: 200Mi
+          #   requests:
+          #     cpu: 100m
+          #     memory: 100Mi
+      volumes:
+        - name: neo4j-pvc
+          persistentVolumeClaim:
+            claimName: neo4j-pvc
