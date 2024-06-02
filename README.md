@@ -46,3 +46,9 @@ kubectl create secret generic config-secrets -n social-albums \
   --from-literal=MONGO_INITDB_ROOT_PASSWORD=kx12kx12 \
   --from-literal=NEO4J_AUTH=neo4j/fysalida
 ```
+
+#### social-albums-config (configMap)
+
+```
+kubectl create configmap my-config -n social-albums --from-env-file=.env.kube
+```

@@ -16,7 +16,10 @@ spec:
         app: social-albums-api
     spec:
       containers:
-      - name: social-albums-api
-        image: nginx
-      imagePullSecrets:
-      - name: registry-creds
+      - envFrom:
+          - configMapRef:
+              name: social-albums-config
+        image: angelosnm/social-albums:v2
+        name: social-albums-api        
+      # imagePullSecrets:
+      # - name: registry-creds

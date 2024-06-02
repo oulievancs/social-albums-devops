@@ -4,10 +4,10 @@ metadata:
   name: social-albums-api
   namespace: social-albums
 spec:
-  secretName: api-social-albums-cuccos-org-tls
+  secretName: api-social-albums-cucco-org-tls
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
-  commonName: "api.social-albums.cuccos.org"
+  commonName: "api.social-albums.cucco.org"
   dnsNames:
-  - "api.social-albums.cuccos.org"
+  - "api.social-albums.cucco.org"
