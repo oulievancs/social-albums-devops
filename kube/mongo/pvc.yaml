@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mongo-pvc
+  name: social-albums-mongo-pvc
   namespace: social-albums 
   labels:
-    pvc: mongo
+    pvc: social-albums-mongo
 spec:
   storageClassName: microk8s-hostpath
   resources:

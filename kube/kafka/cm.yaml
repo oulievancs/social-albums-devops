@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: kafka-config
+  name: social-albums-kafka-config
   namespace: social-albums
 data:
   KAFKA_NODE_ID: "1"

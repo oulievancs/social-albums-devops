@@ -6,7 +6,7 @@ metadata:
 spec:
   secretName: api-social-albums-cucco-org-tls
   issuerRef:
-    name: letsencrypt
+    name: letsencrypt-prod
     kind: ClusterIssuer
   commonName: "api.social-albums.cucco.org"
   dnsNames:

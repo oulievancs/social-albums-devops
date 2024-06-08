@@ -3,17 +3,17 @@ kind: Deployment
 metadata:
   labels:
     app: social-albums-kafka
-  name: kafka
+  name: social-albums-kafka
   namespace: social-albums
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kafka
+      app: social-albums-kafka
   template:
     metadata:
       labels:
-        app: kafka
+        app: social-albums-kafka
     spec:
       enableServiceLinks: false # Used to prevent Kubernetes environment variables to be injected into the pod and cause conflicts (https://github.com/confluentinc/schema-registry/issues/689#issuecomment-827716674)
       containers:

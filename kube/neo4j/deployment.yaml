@@ -3,17 +3,17 @@ kind: Deployment
 metadata:
   labels:
     app: social-albums-neo4j
-  name: neo4j
+  name: social-albums-neo4j
   namespace: social-albums
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: neo4j
+      app: social-albums-neo4j
   template:
     metadata:
       labels:
-        app: neo4j
+        app: social-albums-neo4j
     spec:
       containers:
         - envFrom:

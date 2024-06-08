@@ -3,17 +3,17 @@ kind: Deployment
 metadata:
   labels:
     app: social-albums-mysql
-  name: mysql
+  name: social-albums-mysql
   namespace: social-albums
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mysql
+      app: social-albums-mysql
   template:
     metadata:
       labels:
-        app: mysql
+        app: social-albums-mysql
     spec:
       containers:
         - envFrom:
@@ -25,7 +25,7 @@ spec:
             - containerPort: 3306
           volumeMounts:
             - mountPath: /var/lib/mysql
-              name: mysql-pvc
+              name: social-albums-mysql-pvc
           # resources:
           #   limits:
           #     cpu: 200m
@@ -34,6 +34,6 @@ spec:
           #     cpu: 100m
           #     memory: 100Mi
       volumes:
-        - name: mysql-pvc
+        - name: social-albums-mysql-pvc
           persistentVolumeClaim:
-            claimName: mysql-pvc
+            claimName: social-albums-mysql-pvc
