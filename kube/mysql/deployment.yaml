@@ -26,13 +26,6 @@ spec:
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: social-albums-mysql-pvc
-          # resources:
-          #   limits:
-          #     cpu: 200m
-          #     memory: 200Mi
-          #   requests:
-          #     cpu: 100m
-          #     memory: 100Mi
       volumes:
         - name: social-albums-mysql-pvc
           persistentVolumeClaim:

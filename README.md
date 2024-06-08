@@ -47,6 +47,21 @@ kubectl create secret generic config-secrets -n social-albums \
   --from-literal=NEO4J_AUTH=neo4j/fysalida
 ```
 
+#### keycloak-config-secret
+
+```
+kubectl create secret generic keycloak-config-secrets -n social-albums \
+  --from-literal=KC_PROXY_ADDRESS_FORWARDING=true \
+  --from-literal=KC_DB=mysql \
+  --from-literal=KC_DB_USERNAME=koukos \
+  --from-literal=KC_DB_PASSWORD=kx12kx12 \
+  --from-literal=KC_DB_URL_HOST=social-albums-mysql \
+  --from-literal=KC_DB_URL_PORT=3306 \
+  --from-literal=KC_DB_URL_DATABASE=keycloak \
+  --from-literal=KEYCLOAK_ADMIN=admin \
+  --from-literal=KEYCLOAK_ADMIN_PASSWORD=password
+```
+
 #### social-albums-config (configMap)
 
 ```

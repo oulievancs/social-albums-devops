@@ -26,13 +26,6 @@ spec:
           volumeMounts:
             - mountPath: /data/db
               name: social-albums-mongo-pvc
-          # resources:
-          #   limits:
-          #     cpu: 200m
-          #     memory: 200Mi
-          #   requests:
-          #     cpu: 100m
-          #     memory: 100Mi
       volumes:
         - name: social-albums-mongo-pvc
           persistentVolumeClaim:

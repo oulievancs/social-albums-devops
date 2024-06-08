@@ -26,15 +26,8 @@ spec:
             - containerPort: 7687
           volumeMounts:
             - mountPath: /data
-              name: neo4j-pvc
-          # resources:
-          #   limits:
-          #     cpu: 200m
-          #     memory: 200Mi
-          #   requests:
-          #     cpu: 100m
-          #     memory: 100Mi
+              name: social-albums-neo4j-pvc
       volumes:
-        - name: neo4j-pvc
+        - name: social-albums-neo4j-pvc
           persistentVolumeClaim:
-            claimName: neo4j-pvc
+            claimName: social-albums-neo4j-pvc
