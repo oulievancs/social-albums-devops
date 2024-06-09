@@ -1,0 +1,25 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: social-albums-consumer
+  namespace: social-albums
+  labels:
+    app: social-albums-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: social-albums-consumer
+  template:
+    metadata:
+      labels:
+        app: social-albums-consumer
+    spec:
+      containers:
+      - envFrom:
+          - configMapRef:
+              name: mysql-config-secrets
+        image: oulievancs/albums-consumer:v2
+        name: social-albums-consumer
+      # imagePullSecrets:
+      # - name: registry-creds

@@ -1,0 +1,25 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: social-albums-producer
+  namespace: social-albums
+  labels:
+    app: social-albums-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: social-albums-producer
+  template:
+    metadata:
+      labels:
+        app: social-albums-producer
+    spec:
+      containers:
+      - envFrom:
+          - configMapRef:
+              name: mongo-config-secrets
+        image: oulievancs/albums-producer:v2
+        name: social-albums-producer
+      # imagePullSecrets:
+      # - name: registry-creds

@@ -15,7 +15,6 @@ from common.webUtils import WebUtils
 load_dotenv()
 
 """Properties regarding the web server configuration."""
-PORT = os.environ.get("API_SERVER_PORT")
 
 """Properties regarding the database."""
 MYSQL_DB_HOST = os.environ.get("MYSQL_DB_HOST")
@@ -320,4 +319,4 @@ if __name__ == "__main__":
     logging.basicConfig()
     logging.root.setLevel(logging.INFO)
 
-    app.run(host="0.0.0.0", port=PORT, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

@@ -1,0 +1,25 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: social-users-producer
+  namespace: social-albums
+  labels:
+    app: social-users-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: social-users-producer
+  template:
+    metadata:
+      labels:
+        app: social-users-producer
+    spec:
+      containers:
+      - envFrom:
+          - configMapRef:
+              name: neo4j-config-secrets
+        image: oulievancs/users-producer:v2
+        name: social-albums-producer
+      # imagePullSecrets:
+      # - name: registry-creds

@@ -16,7 +16,6 @@ from common.webUtils import WebUtils
 load_dotenv()
 
 """Properties regarding the web server configuration."""
-PORT = os.environ.get("USERS_PORT")
 TOPIC = os.environ.get("KAFKA_TOPIC_USERS")
 
 """Properties regarding the Neo4j connection configuration."""
@@ -112,4 +111,4 @@ if __name__ == "__main__":
     logging.basicConfig()
     logging.root.setLevel(logging.INFO)
 
-    app.run(host="0.0.0.0", port=PORT, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

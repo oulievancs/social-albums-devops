@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: social-albums-producer
+  namespace: social-albums
+spec:
+  rules:
+  - host: api.social-albums.cucco.org
+    http:
+      paths:
+      - path: /social-albums-producer
+        pathType: Prefix
+        backend:
+          service:
+            name: social-albums-producer
+            port:
+              number: 5000
+  tls:
+  - hosts:
+    - api.social-albums.cucco.org
+    secretName: api-social-albums-cucco-org-tls

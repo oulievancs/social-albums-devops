@@ -20,4 +20,5 @@ spec:
           - configMapRef:
               name: social-albums-config
         image: angelosnm/social-albums:v2
+              name: mysql-config-secrets
         name: social-albums-api

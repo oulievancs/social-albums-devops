@@ -27,6 +27,15 @@ spec:
           volumeMounts:
             - mountPath: /data
               name: social-albums-neo4j-pvc
+        - livenessProbe:
+            exec:
+              command:
+                - wget
+                - http://127.0.0.1:7474 || exit 1
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: liveness-probe
       volumes:
         - name: social-albums-neo4j-pvc
           persistentVolumeClaim:

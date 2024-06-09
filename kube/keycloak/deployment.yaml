@@ -24,11 +24,24 @@ spec:
         command:
           - "/opt/keycloak/bin/kc.sh"
           - "start"
+          - --health-enabled=true
+          - --metrics-enabled=true
         ports:
           - containerPort: 8080
         volumeMounts:
           - mountPath: /opt/keycloak/data
             name: social-albums-keycloak-pvc
+      - livenessProbe:
+          exec:
+            command:
+              - curl
+              - --head
+              - -fsS
+              - http://127.0.0.1:8080/health/ready
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        name: liveness-probe
       volumes:
         - name: social-albums-keycloak-pvc
           persistentVolumeClaim:

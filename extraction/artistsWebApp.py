@@ -21,7 +21,6 @@ mongo_uri = os.environ.get("MONGODB_URI")
 database_name = os.environ.get("MONGODB_NAME")
 collection_name = os.environ.get("MONGODB_COLLECTION_NAME")
 
-PORT = os.environ.get("ARTISTS_PORT")
 TOPIC = os.environ.get("KAFKA_TOPIC_ARTISTS")
 
 # Connect to MongoDB
@@ -83,4 +82,4 @@ if __name__ == "__main__":
     logging.basicConfig()
     logging.root.setLevel(logging.INFO)
 
-    app.run(host="0.0.0.0", port=PORT, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
