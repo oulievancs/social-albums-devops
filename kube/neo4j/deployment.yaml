@@ -18,7 +18,7 @@ spec:
       containers:
         - envFrom:
             - secretRef:
-                name: config-secrets
+                name: neo4j-config-secrets
           image: neo4j:5.15.0
           name: neo4j
           ports:

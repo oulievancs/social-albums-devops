@@ -18,7 +18,7 @@ spec:
       containers:
         - envFrom:
             - secretRef:
-                name: config-secrets
+                name: mysql-config-secrets
           image: mysql:8.0.33
           name: mysql
           ports:

@@ -18,7 +18,7 @@ spec:
       containers:
         - envFrom:
             - secretRef:
-                name: config-secrets
+                name: mongo-config-secrets
           image: mongo:7.0.5
           name: mongo
           ports:

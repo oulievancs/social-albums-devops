@@ -34,20 +34,32 @@ data regarding a *Workplan* can be stored on a *Neo4J* database.
 
 ### Kubernetes
 
-#### config-secret
+#### mysql-config-secrets
 
 ```
-kubectl create secret generic config-secrets -n social-albums \
-  --from-literal=MYSQL_RANDOM_ROOT_PASSWORD=yes \
+kubectl create secret generic mysql-config-secrets -n social-albums \
+  --from-literal=MYSQL_ROOT_PASSWORD=kx12kx12 \
   --from-literal=MYSQL_DATABASE=social-music \
   --from-literal=MYSQL_USER=koukos \
-  --from-literal=MYSQL_PASSWORD=kx12kx12 \
-  --from-literal=MONGO_INITDB_ROOT_USERNAME=kx12kx12 \
-  --from-literal=MONGO_INITDB_ROOT_PASSWORD=kx12kx12 \
+  --from-literal=MYSQL_PASSWORD=kx12kx12
+```
+
+#### mongo-config-secrets
+
+```
+kubectl create secret generic mongo-config-secrets -n social-albums \
+  --from-literal=MONGO_INITDB_ROOT_USERNAME=koukos \
+  --from-literal=MONGO_INITDB_ROOT_PASSWORD=kx12kx12
+```
+
+#### neo4j-config-secrets
+
+```
+kubectl create secret generic neo4j-config-secrets -n social-albums \
   --from-literal=NEO4J_AUTH=neo4j/fysalida
 ```
 
-#### keycloak-config-secret
+#### keycloak-config-secrets
 
 ```
 kubectl create secret generic keycloak-config-secrets -n social-albums \

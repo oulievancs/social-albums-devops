@@ -20,6 +20,4 @@ spec:
           - configMapRef:
               name: social-albums-config
         image: angelosnm/social-albums:v2
-        name: social-albums-api        
-      # imagePullSecrets:
-      # - name: registry-creds
+        name: social-albums-api
