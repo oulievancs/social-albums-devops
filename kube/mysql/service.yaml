@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: social-albums-mysql
+  name: social-albums-mysql
+  namespace: social-albums
+spec:
+  ports:
+    - port: 3306
+      targetPort: 3306
+  selector:
+    app: social-albums-mysql
+  type: ClusterIP

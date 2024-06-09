@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: social-albums-mysql
+  name: social-albums-mysql
+  namespace: social-albums
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: social-albums-mysql
+  template:
+    metadata:
+      labels:
+        app: social-albums-mysql
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: mysql-config-secrets
+          image: mysql:8.0.33
+          name: mysql
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: social-albums-mysql-pvc
+      volumes:
+        - name: social-albums-mysql-pvc
+          persistentVolumeClaim:
+            claimName: social-albums-mysql-pvc

@@ -31,3 +31,51 @@ of its friends. This module, located on `api/apiServer.py`.
 Finally, an extra, out of scope module presented on `api/workProjectBackend.py`
 that regarding an example of the FR - front end exercise, and how
 data regarding a *Workplan* can be stored on a *Neo4J* database.
+
+### Kubernetes
+
+#### mysql-config-secrets
+
+```
+kubectl create secret generic mysql-config-secrets -n social-albums \
+  --from-literal=MYSQL_ROOT_PASSWORD=kx12kx12 \
+  --from-literal=MYSQL_DATABASE=social-music \
+  --from-literal=MYSQL_USER=koukos \
+  --from-literal=MYSQL_PASSWORD=kx12kx12
+```
+
+#### mongo-config-secrets
+
+```
+kubectl create secret generic mongo-config-secrets -n social-albums \
+  --from-literal=MONGO_INITDB_ROOT_USERNAME=koukos \
+  --from-literal=MONGO_INITDB_ROOT_PASSWORD=kx12kx12
+```
+
+#### neo4j-config-secrets
+
+```
+kubectl create secret generic neo4j-config-secrets -n social-albums \
+  --from-literal=NEO4J_AUTH=neo4j/fysalida
+```
+
+#### keycloak-config-secrets
+
+```
+kubectl create secret generic keycloak-config-secrets -n social-albums \
+  --from-literal=KC_PROXY_ADDRESS_FORWARDING=true \
+  --from-literal=KC_DB=mysql \
+  --from-literal=KC_DB_USERNAME=koukos \
+  --from-literal=KC_DB_PASSWORD=kx12kx12 \
+  --from-literal=KC_DB_URL_HOST=social-albums-mysql \
+  --from-literal=KC_DB_URL_PORT=3306 \
+  --from-literal=KC_DB_URL_DATABASE=keycloak \
+  --from-literal=KEYCLOAK_ADMIN=admin \
+  --from-literal=KEYCLOAK_ADMIN_PASSWORD=password
+```
+
+#### social-albums-config (configMap)
+
+```
+kubectl create configmap my-config -n social-albums --from-env-file=.env.kube
+```

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: social-albums-mongo
+  name: social-albums-mongo
+  namespace: social-albums
+spec:
+  ports:
+    - port: 27017
+      targetPort: 27017
+  selector:
+    app: social-albums-mongo
+  type: ClusterIP

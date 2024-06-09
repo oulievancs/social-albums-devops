@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: social-albums-neo4j-pvc
+  namespace: social-albums 
+  labels:
+    pvc: social-albums-neo4j
+spec:
+  storageClassName: microk8s-hostpath
+  resources:
+    requests:
+      storage: 100Mi
+  accessModes:
+    - ReadWriteOnce

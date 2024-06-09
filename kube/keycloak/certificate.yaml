@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: social-albums-keycloak
+  namespace: social-albums
+spec:
+  secretName: keycloak-social-albums-cucco-org-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: "keycloak.social-albums.cucco.org"
+  dnsNames:
+  - "keycloak.social-albums.cucco.org"

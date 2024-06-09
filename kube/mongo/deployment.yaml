@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: social-albums-mongo
+  name: social-albums-mongo
+  namespace: social-albums
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: social-albums-mongo
+  template:
+    metadata:
+      labels:
+        app: social-albums-mongo
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: mongo-config-secrets
+          image: mongo:7.0.5
+          name: mongo
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - mountPath: /data/db
+              name: social-albums-mongo-pvc
+      volumes:
+        - name: social-albums-mongo-pvc
+          persistentVolumeClaim:
+            claimName: social-albums-mongo-pvc
