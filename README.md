@@ -103,3 +103,28 @@ kubectl create secret generic keycloak-config-secrets -n social-albums \
 ```
 kubectl create configmap my-config -n social-albums --from-env-file=.env.kube
 ```
+
+## UML Diagram
+
+UML diagram has been created using [mermaid](https://mermaid.js.org/)
+
+```
+sequenceDiagram
+  participant ETL_Developer
+  participant MongoDB
+  participant Neo4j
+  participant MySQL
+  participant Python
+  participant Kafka
+  participant Flask_Framework
+
+  ETL_Developer->>MongoDB: Extract data
+  MongoDB-->>Python: Provide data
+  Python->>Python: Transform data
+  Python-->>Kafka: Send transformed data
+  Kafka-->>MySQL: Load data
+  Python->>Flask_Framework: Implement monitoring
+  Flask_Framework-->>ETL_Developer: Monitor process
+
+  note over MySQL: Final data storage
+```
