@@ -1,4 +1,4 @@
-FROM python:3.12.3-slim-bullseye
+FROM python:3.11-slim-bullseye
 
 RUN apt-get update && apt-get install -y pkg-config python3-dev build-essential default-libmysqlclient-dev
 
@@ -15,7 +15,7 @@ RUN mkdir extraction \
     common
 
 COPY extraction/artistsWebApp.py extraction/.
-COPY common/mongoDb.py common/.
+COPY common/ common/
 COPY *.kube .
 
 RUN chown -R appuser:appuser /usr/app
@@ -24,4 +24,4 @@ USER appuser:appuser
 
 EXPOSE 5000/tcp
 
-CMD ["python", "extraction/artistsWebApp.py"]
+CMD ["gunicorn", "extraction.artistsWebApp:app", "-w", "4", "-b", "0.0.0.0:5000"]

@@ -12,11 +12,12 @@ COPY ../requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN mkdir extraction \
-    common
+    common \
+    api
 
 COPY transformationLoad/transformationAndLoadApp.py transformationLoad/.
-COPY common/mySQLDb.py common/.
-COPY common/webUtils.py common/.
+COPY common/ common/
+COPY api/ api/
 COPY *.kube .
 
 RUN chown -R appuser:appuser /usr/app
@@ -25,4 +26,4 @@ USER appuser:appuser
 
 EXPOSE 5000/tcp
 
-CMD ["python", "api/apiServer.py"]
+CMD ["gunicorn", "api.apiServer:app", "-w", "4", "-b", "0.0.0.0:5000"]

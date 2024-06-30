@@ -32,6 +32,30 @@ Finally, an extra, out of scope module presented on `api/workProjectBackend.py`
 that regarding an example of the FR - front end exercise, and how
 data regarding a *Workplan* can be stored on a *Neo4J* database.
 
+### Docker images
+Each module has its own Dockerfile inside the `docker` directory of the project.
+In order to build them, you will need to be on the root directory and specify the Dockferfile
+
+##### albums-api
+```
+docker build . -f ./docker/albumsApi.nonroot.Dockerfile -t albums-api
+```
+
+##### albums-consumer
+```
+docker build . -f ./docker/albumsConsumer.nonroot.Dockerfile -t albums-consumer
+```
+
+##### albums-producer
+```
+docker build . -f ./docker/albumsProducer.nonroot.Dockerfile -t albums-producer
+```
+
+##### users-producer
+```
+docker build . -f ./docker/usersProducer.nonroot.Dockerfile -t users-producer
+```
+
 ### Kubernetes
 
 #### mysql-config-secrets
