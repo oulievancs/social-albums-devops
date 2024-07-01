@@ -14,8 +14,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN mkdir extraction \
     common
 
-COPY common/mongoDb.py common/.
-COPY *.kube .
+COPY common/neo4JConnection.py common/.
+COPY common/webUtils.py common/.
+COPY .env.kube .env
 
 COPY extraction/usersWebApp.py extraction/.
 

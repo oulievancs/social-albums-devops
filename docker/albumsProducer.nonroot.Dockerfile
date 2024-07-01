@@ -15,7 +15,8 @@ RUN mkdir extraction \
     common
 
 COPY common/mongoDb.py common/.
-COPY *.kube .
+COPY common/webUtils.py common/.
+COPY .env.kube .env
 
 COPY extraction/artistsWebApp.py extraction/.
 

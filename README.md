@@ -80,7 +80,9 @@ kubectl create secret generic mongo-config-secrets -n social-albums \
 
 ```
 kubectl create secret generic neo4j-config-secrets -n social-albums \
-  --from-literal=NEO4J_AUTH=neo4j/fysalida
+  --from-literal=NEO4J_AUTH=neo4j/fysalida \
+  --from-literal=MYNEO4J_AUTH_USER=neo4j \
+  --from-literal=MYNEO4J_AUTH_PASS=fysalida
 ```
 
 #### keycloak-config-secrets

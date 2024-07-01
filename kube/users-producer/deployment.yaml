@@ -17,9 +17,9 @@ spec:
     spec:
       containers:
       - envFrom:
-          - configMapRef:
+          - secretRef:
               name: neo4j-config-secrets
-        image: oulievancs/users-producer:0.0.2
+        image: oulievancs/users-producer:0.0.11
         name: social-albums-producer
       # imagePullSecrets:
       # - name: registry-creds

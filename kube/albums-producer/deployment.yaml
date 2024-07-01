@@ -17,9 +17,9 @@ spec:
     spec:
       containers:
       - envFrom:
-          - configMapRef:
+          - secretRef:
               name: mongo-config-secrets
-        image: oulievancs/albums-producer:0.0.2
+        image: oulievancs/albums-producer:0.0.9
         name: social-albums-producer
       # imagePullSecrets:
       # - name: registry-creds

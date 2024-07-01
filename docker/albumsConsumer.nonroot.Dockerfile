@@ -15,7 +15,7 @@ RUN mkdir common \
     transformationLoad
 
 COPY common/mySQLDb.py common/.
-COPY *.kube .
+COPY .env.kube .env
 
 COPY transformationLoad/transformationAndLoadApp.py transformationLoad/.
 

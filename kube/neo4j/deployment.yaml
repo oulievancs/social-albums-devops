@@ -1,3 +1,25 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: social-albums-node4j
+  name: configmap-neo4j-entry
+  namespace: social-albums
+data:
+  entrypoint.sh: |-
+    #!/bin/bash
+    
+    while ! wget -q --spider http://127.0.0.1:7474; do
+        echo "🟠 Wait for Neo4J to be ready..."
+        sleep 1
+    done
+    
+    echo "🟢 Neo4J is ready."
+    echo "🟦 Current user: $(whoami)"
+    
+    cypher-shell -u "$MYNEO4J_AUTH_USER" -p "$MYNEO4J_AUTH_PASS" << cat /var/db/config/social/node4j-social-schema-config.cypher
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -27,6 +49,12 @@ spec:
           volumeMounts:
             - mountPath: /data
               name: social-albums-neo4j-pvc
+            - mountPath: /var/db/config/social
+              name: neo4j-social-schema-config-vol
+            - name: configmap-neo4j-entry-volume
+              mountPath: /bin/entrypoint.sh
+              readOnly: true
+              subPath: entrypoint.sh
           livenessProbe:
             exec:
               command:
@@ -35,7 +63,23 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/entrypoint.sh"
       volumes:
         - name: social-albums-neo4j-pvc
           persistentVolumeClaim:
             claimName: social-albums-neo4j-pvc
+        - name: neo4j-social-schema-config-vol
+          configMap:
+            name: node4j-social-schema-config
+            defaultMode: 420
+            items:
+              - key: schema.cypher
+                path: node4j-social-schema-config.cypher
+        - name: configmap-neo4j-entry-volume
+          configMap:
+            defaultMode: 0700
+            name: configmap-neo4j-entry
