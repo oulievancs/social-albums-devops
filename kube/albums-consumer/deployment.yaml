@@ -19,7 +19,14 @@ spec:
       - envFrom:
           - configMapRef:
               name: mysql-config-secrets
-        image: oulievancs/albums-consumer:v2
+        image: oulievancs/albums-consumer:0.0.2
         name: social-albums-consumer
       # imagePullSecrets:
       # - name: registry-creds
+      initContainers:
+        - name: wait-for-mysql-pod
+          image: busybox:1.28
+          args:
+            - /bin/sh
+            - -c
+            - until telnet social-albums-mysql 3306; do echo waiting for mysql-service; sleep 2; done;

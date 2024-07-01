@@ -1,3 +1,29 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: social-albums-mysql
+  name: configmap-entry
+  namespace: social-albums
+data:
+  entrypoint.sh: |-
+    #!/bin/bash
+    
+    while ! mysqladmin ping -h"127.0.0.1" --silent; do
+        echo "🟠 Wait for MySQL to be ready..."
+        sleep 1
+    done
+    
+    echo "🟢 MySQL is ready."
+    echo "🟦 Current user: $(whoami)"
+    
+    export MYSQL_PWD=$(echo $MYSQL_ROOT_PASSWORD)
+    
+    mysql -u root -e "source /var/db/config/social-album/mysql-social-schema-config.sql"
+    
+    mysql -u root -e "source /var/db/config/keycloak/keycloak-schema-config.sql"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -26,9 +52,15 @@ spec:
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: social-albums-mysql-pvc
-            - mountPath: /var/db/config
-              name: mysql-schema-config-vol
-        - livenessProbe:
+            - mountPath: /var/db/config/social-album
+              name: mysql-social-schema-config-vol
+            - mountPath: /var/db/config/keycloak
+              name: mysql-keycloak-schema-config-vol
+            - name: configmap-entry-volume
+              mountPath: /bin/entrypoint.sh
+              readOnly: true
+              subPath: entrypoint.sh
+          livenessProbe:
             exec:
               command:
                 - mysqladmin
@@ -36,34 +68,30 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
-          name: liveness-probe
-      initContainers:
-        - name: init-social-schema-config
-          image: busybox:1.28
-          command:
-            - sh
-            - -c
-            - psql
-            - -a -f
-            - "/var/db/config/mysql-social-schema-config.sql"
-        - name: init-keycloak-schema-config
-          image: busybox:1.28
-          command:
-            - sh
-            - -c
-            - psql
-            - -a -f
-            - "/var/db/config/keycloak-create-schema-config.sql"
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/entrypoint.sh"
       volumes:
         - name: social-albums-mysql-pvc
           persistentVolumeClaim:
             claimName: social-albums-mysql-pvc
-        - name: mysql-schema-config-vol
+        - name: mysql-social-schema-config-vol
           configMap:
-            name: mysql-config
+            name: mysql-social-schema-config
             defaultMode: 420
             items:
-              - key: mysql-social-schema-config
+              - key: schema.sql
                 path: mysql-social-schema-config.sql
-              - key: keycloak-cretate-schema
-                path: keycloak-create-schema-config.sql
+        - name: mysql-keycloak-schema-config-vol
+          configMap:
+            name: mysql-keycloak-schema-config
+            defaultMode: 420
+            items:
+              - key: schema.sql
+                path: keycloak-schema-config.sql
+        - name: configmap-entry-volume
+          configMap:
+            defaultMode: 0700
+            name: configmap-entry

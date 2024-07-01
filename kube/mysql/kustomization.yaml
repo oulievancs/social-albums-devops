@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: mysql-config
+  namespace: social-albums
+configMapGenerator:
+  - name: mysql-social-schema-config
+    files:
+      - resources/social_music/schema.sql
+  - name: mysql-keycloak-schema-config
+    files:
+       - resources/keycloak/schema.sql
+resources:
+  - deployment.yaml
+  - service.yaml
+generatorOptions:
+  disableNameSuffixHash: true # use a static name

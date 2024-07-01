@@ -1,4 +1,4 @@
-FROM python:3.12.3-slim-bullseye
+FROM python:3.11-slim-bullseye
 
 RUN apt-get update && apt-get install -y pkg-config python3-dev build-essential default-libmysqlclient-dev
 
@@ -11,14 +11,14 @@ COPY ../requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN mkdir extraction \
-    common \
+RUN mkdir common \
     api
 
-COPY transformationLoad/transformationAndLoadApp.py transformationLoad/.
-COPY common/ common/
-COPY api/ api/
+COPY common/mySQLDb.py common/.
+COPY common/webUtils.py common/.
 COPY *.kube .
+
+COPY api/apiServer.py api/.
 
 RUN chown -R appuser:appuser /usr/app
 

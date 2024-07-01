@@ -26,7 +26,7 @@ spec:
           volumeMounts:
             - mountPath: /data/db
               name: social-albums-mongo-pvc
-        - livenessProbe:
+          livenessProbe:
             exec:
               command:
                 - mongo
@@ -35,7 +35,6 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
-          name: liveness-probe
       volumes:
         - name: social-albums-mongo-pvc
           persistentVolumeClaim:

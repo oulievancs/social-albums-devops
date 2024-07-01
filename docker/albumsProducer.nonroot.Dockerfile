@@ -14,9 +14,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN mkdir extraction \
     common
 
-COPY extraction/artistsWebApp.py extraction/.
-COPY common/ common/
+COPY common/mongoDb.py common/.
 COPY *.kube .
+
+COPY extraction/artistsWebApp.py extraction/.
 
 RUN chown -R appuser:appuser /usr/app
 

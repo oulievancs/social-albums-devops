@@ -1,3 +1,7 @@
+create database if not exists social-music;
+
+use social-music;
+
 create table if not exists primary_genres
 (
     id          int auto_increment

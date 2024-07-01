@@ -19,7 +19,14 @@ spec:
       - envFrom:
           - configMapRef:
               name: neo4j-config-secrets
-        image: oulievancs/users-producer:v2
+        image: oulievancs/users-producer:0.0.2
         name: social-albums-producer
       # imagePullSecrets:
       # - name: registry-creds
+      initContainers:
+        - name: wait-for-neo4j-pod
+          image: busybox:1.28
+          args:
+            - /bin/sh
+            - -c
+            - until telnet social-albums-neo4j 7687; do echo waiting for neo4j-service; sleep 2; done;

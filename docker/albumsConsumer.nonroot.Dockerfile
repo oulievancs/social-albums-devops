@@ -11,15 +11,16 @@ COPY ../requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN mkdir transformationLoad \
-    common
+RUN mkdir common \
+    transformationLoad
 
-COPY transformationLoad/transformationAndLoadApp.py .
-COPY common/ common/
+COPY common/mySQLDb.py common/.
 COPY *.kube .
+
+COPY transformationLoad/transformationAndLoadApp.py transformationLoad/.
 
 RUN chown -R appuser:appuser /usr/app
 
 USER appuser:appuser
 
-CMD ["python", "transformationAndLoadApp.py"]
+CMD ["python", "transformationLoad/transformationAndLoadApp.py"]
