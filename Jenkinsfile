@@ -11,10 +11,6 @@ pipeline {
         ALBUMS_API_PREFIX='docker.io/angelosnm/albums-api'
         ALBUMS_PRODUCER_PREFIX='docker.io/angelosnm/albums-producer'
         ALBUMS_CONSUMER_PREFIX='docker.io/angelosnm/albums-consumer'
-        KUBE_ALBUMS_CONSUMER_DEPLOYMENT='kube/albums-consumer/deployment.yaml'
-        KUBE_ALBUMS_PRODUCER_DEPLOYMENT='kube/albums-producer/deployment.yaml'
-        KUBE_USERS_PRODUCER_DEPLOYMENT='kube/users-producer/deployment.yaml'
-        KUBE_API_DEPLOYMENT='kube/api/deployment.yaml'
     }
     stages {
         stage('Check for relevant changes') {
@@ -56,19 +52,15 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    def imageTag = sh(script: '''
-                        HEAD_COMMIT=$(git rev-parse --short HEAD)
-                        echo $HEAD_COMMIT-$BUILD_ID
-                    ''', returnStdout: true).trim()
-
-                    sh '''
-                       docker build --rm -t $USERS_PRODUCER_PREFIX:$imageTag -t $USERS_PRODUCER_PREFIX:latest -f docker/usersProducer.nonroot.Dockerfile .
-                       echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
-                       docker push $USERS_PRODUCER_PREFIX --all-tags
-                    '''
-                    updateKubeDeployment(KUBE_USERS_PRODUCER_DEPLOYMENT, "$USERS_PRODUCER_PREFIX:$imageTag")
-                }
+                sh '''
+                   HEAD_COMMIT=$(git rev-parse --short HEAD)
+                   TAG=$HEAD_COMMIT-$BUILD_ID
+                   docker build --rm -t $USERS_PRODUCER_PREFIX:$TAG -t $USERS_PRODUCER_PREFIX:latest -f docker/usersProducer.nonroot.Dockerfile .
+                '''
+                sh '''
+                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
+                    docker push $USERS_PRODUCER_PREFIX --all-tags
+                '''
             }
         }
         stage('Building & pushing albums-api Docker images to DockerHub') {
@@ -80,19 +72,20 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    def imageTag = sh(script: '''
-                        HEAD_COMMIT=$(git rev-parse --short HEAD)
-                        echo $HEAD_COMMIT-$BUILD_ID
-                    ''', returnStdout: true).trim()
+                sh '''
+                   HEAD_COMMIT=$(git rev-parse --short HEAD)
+                   TAG=$HEAD_COMMIT-$BUILD_ID
+                   docker build --rm -t $ALBUMS_API_PREFIX:$TAG -t $ALBUMS_API_PREFIX:latest -f docker/albumsApi.nonroot.Dockerfile .
+                '''
+                sh '''
+                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
+                    docker push $ALBUMS_API_PREFIX --all-tags
+                '''
+                sh '''
+                sed -i "s|image:.*|image: NEW IMAGE
+                sed -i "s|image:.*|image:\ $ALBUMS_API_PREFIX:$TAG|" kube/api/deployment.yaml
 
-                    sh '''
-                       docker build --rm -t $ALBUMS_API_PREFIX:$imageTag -t $ALBUMS_API_PREFIX:latest -f docker/albumsApi.nonroot.Dockerfile .
-                       echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
-                       docker push $ALBUMS_API_PREFIX --all-tags
-                    '''
-                    updateKubeDeployment(KUBE_API_DEPLOYMENT, "$ALBUMS_API_PREFIX:$imageTag")
-                }
+                '''
             }
         }
         stage('Building & pushing albums-producer Docker images to DockerHub') {
@@ -104,19 +97,15 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    def imageTag = sh(script: '''
-                        HEAD_COMMIT=$(git rev-parse --short HEAD)
-                        echo $HEAD_COMMIT-$BUILD_ID
-                    ''', returnStdout: true).trim()
-
-                    sh '''
-                       docker build --rm -t $ALBUMS_PRODUCER_PREFIX:$imageTag -t $ALBUMS_PRODUCER_PREFIX:latest -f docker/albumsProducer.nonroot.Dockerfile .
-                       echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
-                       docker push $ALBUMS_PRODUCER_PREFIX --all-tags
-                    '''
-                    updateKubeDeployment(KUBE_ALBUMS_PRODUCER_DEPLOYMENT, "$ALBUMS_PRODUCER_PREFIX:$imageTag")
-                }
+                sh '''
+                   HEAD_COMMIT=$(git rev-parse --short HEAD)
+                   TAG=$HEAD_COMMIT-$BUILD_ID
+                   docker build --rm -t $ALBUMS_PRODUCER_PREFIX:$TAG -t $ALBUMS_PRODUCER_PREFIX:latest -f docker/albumsProducer.nonroot.Dockerfile .
+                '''
+                sh '''
+                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
+                    docker push $ALBUMS_PRODUCER_PREFIX --all-tags
+                '''
             }
         }
         stage('Building & pushing albums-consumer Docker images to DockerHub') {
@@ -128,19 +117,40 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    def imageTag = sh(script: '''
-                        HEAD_COMMIT=$(git rev-parse --short HEAD)
-                        echo $HEAD_COMMIT-$BUILD_ID
-                    ''', returnStdout: true).trim()
-
-                    sh '''
-                       docker build --rm -t $ALBUMS_CONSUMER_PREFIX:$imageTag -t $ALBUMS_CONSUMER_PREFIX:latest -f docker/albumsConsumer.nonroot.Dockerfile .
-                       echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
-                       docker push $ALBUMS_CONSUMER_PREFIX --all-tags
-                    '''
-                    updateKubeDeployment(KUBE_ALBUMS_CONSUMER_DEPLOYMENT, "$ALBUMS_CONSUMER_PREFIX:$imageTag")
+                sh '''
+                   HEAD_COMMIT=$(git rev-parse --short HEAD)
+                   TAG=$HEAD_COMMIT-$BUILD_ID
+                   docker build --rm -t $ALBUMS_CONSUMER_PREFIX:$TAG -t $ALBUMS_CONSUMER_PREFIX:latest -f docker/albumsConsumer.nonroot.Dockerfile .
+                '''
+                sh '''
+                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
+                    docker push $ALBUMS_CONSUMER_PREFIX --all-tags
+                '''
+            }
+        }
+        stage('Building & pushing all Docker images') {
+            when {
+                expression {
+                    def changedFiles = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim().split('\n')
+                    return changedFiles.any { file -> file.startsWith('common/') }
                 }
+            }
+            steps {
+                sh '''
+                    HEAD_COMMIT=$(git rev-parse --short HEAD)
+                    TAG=$HEAD_COMMIT-$BUILD_ID
+                    docker build --rm -t $USERS_PRODUCER_PREFIX:$TAG -t $USERS_PRODUCER_PREFIX:latest -f docker/usersProducer.nonroot.Dockerfile .
+                    docker build --rm -t $ALBUMS_API_PREFIX:$TAG -t $ALBUMS_API_PREFIX:latest -f docker/albumsApi.nonroot.Dockerfile .
+                    docker build --rm -t $ALBUMS_PRODUCER_PREFIX:$TAG -t $ALBUMS_PRODUCER_PREFIX:latest -f docker/albumsProducer.nonroot.Dockerfile .
+                    docker build --rm -t $ALBUMS_CONSUMER_PREFIX:$TAG -t $ALBUMS_CONSUMER_PREFIX:latest -f docker/albumsConsumer.nonroot.Dockerfile .
+                '''
+                sh '''
+                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
+                    docker push $USERS_PRODUCER_PREFIX --all-tags
+                    docker push $ALBUMS_API_PREFIX --all-tags
+                    docker push $ALBUMS_PRODUCER_PREFIX --all-tags
+                    docker push $ALBUMS_CONSUMER_PREFIX --all-tags
+                '''
             }
         }
     }
@@ -157,12 +167,5 @@ pipeline {
             to: 'itp23108@hua.gr', attachLog: true )
             cleanWs()
         }
-    }
-}
-
-// Function to update Kubernetes Deployment YAML file with new image tag
-def updateKubeDeployment(String yamlFile, String newImage) {
-    script {
-        sh "sed -i \"s|image:.*|image: $newImage|\" $yamlFile"
     }
 }
