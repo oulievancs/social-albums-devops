@@ -1,5 +1,6 @@
 """An application regarding the Web REST-API that fetched the users from a Neo4J DB
 and sends them into a Kafka topic channel"""
+
 import json
 import logging
 import os
