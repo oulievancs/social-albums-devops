@@ -1,4 +1,5 @@
 """Regarding functionalities of MongoDB."""
+
 from pymongo import MongoClient
 from pymongo.collection import Collection
 
