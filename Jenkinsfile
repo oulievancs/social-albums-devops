@@ -25,10 +25,10 @@ pipeline {
             }
         }
     }
-    
+
     post {
         always {
-            sh 'docker image prune -a -f' // remove built images
+            sh 'docker image prune -a -f'
             emailext(body: content, mimeType: 'text/html',
             replyTo: '$DEFAULT_REPLYTO', subject: subject,
             to: 'itp23108@hua.gr', attachLog: true )
