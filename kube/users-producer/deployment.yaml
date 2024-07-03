@@ -19,7 +19,7 @@ spec:
       - envFrom:
           - secretRef:
               name: neo4j-config-secrets
-        image: oulievancs/users-producer:0.0.11
+        image: oulievancs/users-producer:0.0.13
         name: social-albums-producer
       # imagePullSecrets:
       # - name: registry-creds

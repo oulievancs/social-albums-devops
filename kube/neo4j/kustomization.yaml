@@ -4,9 +4,9 @@ metadata:
   name: node4j-config
   namespace: social-albums
 configMapGenerator:
-  - name: node4j-social-schema-config
+  - name: node4j-social-config
     files:
-      - resources/schema.cypher
+      - resources/neo4j.conf
 resources:
   - deployment.yaml
   - service.yaml

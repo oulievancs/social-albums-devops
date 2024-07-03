@@ -26,4 +26,4 @@ USER appuser:appuser
 
 EXPOSE 5000/tcp
 
-CMD ["gunicorn", "extraction.usersWebApp.py:app", "-w", "4", "-b", "0.0.0.0:5000"]
+CMD ["gunicorn", "extraction.usersWebApp:app", "-w", "4", "-b", "0.0.0.0:5000"]
