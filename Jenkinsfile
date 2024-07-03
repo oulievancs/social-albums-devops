@@ -9,6 +9,8 @@ pipeline {
         DOCKER_SERVER='docker.io'
         USERS_PRODUCER_PREFIX='docker.io/angelosnm/users-producer'
         ALBUMS_API_PREFIX='docker.io/angelosnm/albums-api'
+        ALBUMS_PRODUCER_PREFIX='docker.io/angelosnm/albums-producer'
+        ALBUMS_CONSUMER_PREFIX='docker.io/angelosnm/albums-consumer'
     }
     stages {
         stage('Check for relevant changes') {
@@ -23,7 +25,18 @@ pipeline {
                         file == 'docker/albumsApi.nonroot.Dockerfile' || 
                         file == 'api/apiServer.py' 
                     }
-                    if (!usersProducerChanges && !albumsApiChanges) {
+                    def albumsProducerChanges = changedFiles.any { file -> 
+                        file == 'docker/albumsProducer.nonroot.Dockerfile' || 
+                        file == 'extraction/artistsWebApp.py' 
+                    }
+                    def albumsConsumerChanges = changedFiles.any { file -> 
+                        file == 'docker/albumsConsumer.nonroot.Dockerfile' || 
+                        file == 'transformationLoad/transformationAndLoadApp.py' 
+                    }
+                    def commonChanges = changedFiles.any { file -> 
+                        file.startsWith('common/')
+                    }
+                    if (!usersProducerChanges && !albumsApiChanges && !albumsProducerChanges && !albumsConsumerChanges && !commonChanges) {
                         currentBuild.result = 'NOT_BUILT'
                         error('No relevant changes detected. Skipping build.')
                     }
@@ -67,6 +80,71 @@ pipeline {
                 sh '''
                     echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
                     docker push $ALBUMS_API_PREFIX --all-tags
+                '''
+            }
+        }
+        stage('Building & pushing albums-producer Docker images to DockerHub') {
+            when {
+                expression {
+                    def changedFiles = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim().split('\n')
+                    return changedFiles.contains('docker/albumsProducer.nonroot.Dockerfile') ||
+                           changedFiles.contains('extraction/artistsWebApp.py')
+                }
+            }
+            steps {
+                sh '''
+                   HEAD_COMMIT=$(git rev-parse --short HEAD)
+                   TAG=$HEAD_COMMIT-$BUILD_ID
+                   docker build --rm -t $ALBUMS_PRODUCER_PREFIX:$TAG -t $ALBUMS_PRODUCER_PREFIX:latest -f docker/albumsProducer.nonroot.Dockerfile .
+                '''
+                sh '''
+                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
+                    docker push $ALBUMS_PRODUCER_PREFIX --all-tags
+                '''
+            }
+        }
+        stage('Building & pushing albums-consumer Docker images to DockerHub') {
+            when {
+                expression {
+                    def changedFiles = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim().split('\n')
+                    return changedFiles.contains('docker/albumsConsumer.nonroot.Dockerfile') ||
+                           changedFiles.contains('transformationLoad/transformationAndLoadApp.py')
+                }
+            }
+            steps {
+                sh '''
+                   HEAD_COMMIT=$(git rev-parse --short HEAD)
+                   TAG=$HEAD_COMMIT-$BUILD_ID
+                   docker build --rm -t $ALBUMS_CONSUMER_PREFIX:$TAG -t $ALBUMS_CONSUMER_PREFIX:latest -f docker/albumsConsumer.nonroot.Dockerfile .
+                '''
+                sh '''
+                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
+                    docker push $ALBUMS_CONSUMER_PREFIX --all-tags
+                '''
+            }
+        }
+        stage('Building & pushing all Docker images') {
+            when {
+                expression {
+                    def changedFiles = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim().split('\n')
+                    return changedFiles.any { file -> file.startsWith('common/') }
+                }
+            }
+            steps {
+                sh '''
+                    HEAD_COMMIT=$(git rev-parse --short HEAD)
+                    TAG=$HEAD_COMMIT-$BUILD_ID
+                    docker build --rm -t $USERS_PRODUCER_PREFIX:$TAG -t $USERS_PRODUCER_PREFIX:latest -f docker/usersProducer.nonroot.Dockerfile .
+                    docker build --rm -t $ALBUMS_API_PREFIX:$TAG -t $ALBUMS_API_PREFIX:latest -f docker/albumsApi.nonroot.Dockerfile .
+                    docker build --rm -t $ALBUMS_PRODUCER_PREFIX:$TAG -t $ALBUMS_PRODUCER_PREFIX:latest -f docker/albumsProducer.nonroot.Dockerfile .
+                    docker build --rm -t $ALBUMS_CONSUMER_PREFIX:$TAG -t $ALBUMS_CONSUMER_PREFIX:latest -f docker/albumsConsumer.nonroot.Dockerfile .
+                '''
+                sh '''
+                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
+                    docker push $USERS_PRODUCER_PREFIX --all-tags
+                    docker push $ALBUMS_API_PREFIX --all-tags
+                    docker push $ALBUMS_PRODUCER_PREFIX --all-tags
+                    docker push $ALBUMS_CONSUMER_PREFIX --all-tags
                 '''
             }
         }
