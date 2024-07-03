@@ -82,7 +82,7 @@ pipeline {
                     docker push $ALBUMS_API_PREFIX --all-tags
                 '''
                 sh '''
-                    sed -i \"s|image:.*|image\ $ALBUMS_API_PREFIX:$TAG|" kube/api/deployment.yaml
+                    sed -i 's|image:.*|image: $ALBUMS_API_PREFIX:$TAG|' kube/api/deployment.yaml
                 '''
             }
         }
