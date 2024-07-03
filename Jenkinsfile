@@ -81,9 +81,6 @@ pipeline {
                     echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
                     docker push $ALBUMS_API_PREFIX --all-tags
                 '''
-                sh '''
-                    sed -i 's|image:.*|image: $ALBUMS_API_PREFIX:$TAG|' kube/api/deployment.yaml
-                '''
             }
         }
         stage('Building & pushing albums-producer Docker images to DockerHub') {
