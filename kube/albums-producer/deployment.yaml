@@ -30,3 +30,9 @@ spec:
             - /bin/sh
             - -c
             - until telnet social-albums-mongo 27017; do echo waiting for mongodb-service; sleep 2; done;
+        - name: wait-for-kafka-pod
+          image: busybox:1.28
+          args:
+            - /bin/sh
+            - -c
+            - until telnet social-albums-kafka 29092; do echo waiting for kafka; sleep 2; done;

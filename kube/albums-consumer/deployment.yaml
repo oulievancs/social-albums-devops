@@ -30,3 +30,9 @@ spec:
             - /bin/sh
             - -c
             - until telnet social-albums-mysql 3306; do echo waiting for mysql-service; sleep 2; done;
+        - name: wait-for-kafka-pod
+          image: busybox:1.28
+          args:
+            - /bin/sh
+            - -c
+            - until telnet social-albums-kafka 29092; do echo waiting for kafka; sleep 2; done;
