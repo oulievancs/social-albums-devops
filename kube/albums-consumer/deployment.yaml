@@ -18,7 +18,7 @@ spec:
       containers:
       - envFrom:
           - secretRef:
-              name: mysql-config-secrets
+              name: social-albums-consumer-secrets
         image: angelosnm/albums-consumer:851dbf1-32
         name: social-albums-consumer
       initContainers:

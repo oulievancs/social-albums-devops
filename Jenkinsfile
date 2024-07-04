@@ -75,7 +75,7 @@ pipeline {
                 sh '''
                    HEAD_COMMIT=$(git rev-parse --short HEAD)
                    TAG=$HEAD_COMMIT-$BUILD_ID
-                   docker build --rm -t $ALBUMS_API_PREFIX:$TAG -t $ALBUMS_API_PREFIX:latest -f docker/usersProducer.nonroot.Dockerfile .
+                   docker build --rm -t $ALBUMS_API_PREFIX:$TAG -t $ALBUMS_API_PREFIX:latest -f docker/albumsApi.nonroot.Dockerfile .
                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
                    docker push $ALBUMS_API_PREFIX --all-tags
                    sed -i '/containers:/,/initContainers:/ { /image:/ s|image:.*|image: '"${ALBUMS_API_PREFIX}:${TAG}"'| }' kube/api/deployment.yaml
@@ -95,7 +95,7 @@ pipeline {
                 sh '''
                    HEAD_COMMIT=$(git rev-parse --short HEAD)
                    TAG=$HEAD_COMMIT-$BUILD_ID
-                   docker build --rm -t $ALBUMS_PRODUCER_PREFIX:$TAG -t $ALBUMS_PRODUCER_PREFIX:latest -f docker/usersProducer.nonroot.Dockerfile .
+                   docker build --rm -t $ALBUMS_PRODUCER_PREFIX:$TAG -t $ALBUMS_PRODUCER_PREFIX:latest -f docker/albumsProducer.nonroot.Dockerfile .
                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
                    docker push $ALBUMS_PRODUCER_PREFIX --all-tags
                    sed -i '/containers:/,/initContainers:/ { /image:/ s|image:.*|image: '"${ALBUMS_PRODUCER_PREFIX}:${TAG}"'| }' kube/albums-producer/deployment.yaml
@@ -115,7 +115,7 @@ pipeline {
                 sh '''
                    HEAD_COMMIT=$(git rev-parse --short HEAD)
                    TAG=$HEAD_COMMIT-$BUILD_ID
-                   docker build --rm -t $ALBUMS_CONSUMER_PREFIX:$TAG -t $ALBUMS_CONSUMER_PREFIX:latest -f docker/usersProducer.nonroot.Dockerfile .
+                   docker build --rm -t $ALBUMS_CONSUMER_PREFIX:$TAG -t $ALBUMS_CONSUMER_PREFIX:latest -f docker/albumsConsumer.nonroot.Dockerfile .
                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
                    docker push $ALBUMS_CONSUMER_PREFIX --all-tags
                    sed -i '/containers:/,/initContainers:/ { /image:/ s|image:.*|image: '"${ALBUMS_CONSUMER_PREFIX}:${TAG}"'| }' kube/albums-consumer/deployment.yaml
