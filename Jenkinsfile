@@ -62,6 +62,7 @@ pipeline {
                     docker push $USERS_PRODUCER_PREFIX --all-tags
                 '''
                 sh """
+                    ls -alh
                     sed -i 's|image: ${env.USERS_PRODUCER_PREFIX}:.*|image: ${env.USERS_PRODUCER_PREFIX}:${TAG}|g' kube/users-producer/deployment.yaml
                     kubectl apply -f kube/users-producer/deployment.yaml
                 """
