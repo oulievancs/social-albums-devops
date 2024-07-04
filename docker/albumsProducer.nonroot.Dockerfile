@@ -20,10 +20,10 @@ COPY .env.kube .env
 
 COPY extraction/artistsWebApp.py extraction/.
 
-RUN chown -R appuser:appuser /usr/app
+RUN chown -R appuser:appuser .
 
 USER appuser:appuser
 
-EXPOSE 5000/tcp
+EXPOSE 5000
 
 CMD ["gunicorn", "extraction.artistsWebApp:app", "-w", "4", "-b", "0.0.0.0:5000"]

@@ -20,7 +20,7 @@ COPY *.kube .
 
 COPY api/apiServer.py api/.
 
-RUN chown -R appuser:appuser /usr/app
+RUN chown -R appuser:appuser .
 
 USER appuser:appuser
 

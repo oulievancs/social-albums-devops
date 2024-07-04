@@ -20,7 +20,7 @@ COPY .env.kube .env
 
 COPY extraction/usersWebApp.py extraction/.
 
-RUN chown -R appuser:appuser /usr/app
+RUN chown -R appuser:appuser .
 
 USER appuser:appuser
 
