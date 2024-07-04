@@ -19,7 +19,7 @@ spec:
       - envFrom:
           - secretRef:
               name: neo4j-config-secrets
-        image: angelosnm/users-producer:851dbf1-32
+        image: angelosnm/users-producer:58174ab-33
         name: social-users-producer
       initContainers:
         - name: wait-for-neo4j-pod

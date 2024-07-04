@@ -15,12 +15,11 @@ RUN mkdir common \
     transformationLoad
 
 COPY common/mySQLDb.py common/.
-COPY .env.kube .env
 
-COPY transformationLoad/transformationAndLoadApp.py transformationLoad/.
+COPY transformationLoad/transformationAndLoadApp.py .
 
 RUN chown -R appuser:appuser /usr/app
 
 USER appuser:appuser
 
-CMD ["python", "transformationLoad/transformationAndLoadApp.py"]
+CMD ["python", "transformationAndLoadApp.py"]
