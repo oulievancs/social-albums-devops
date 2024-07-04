@@ -43,26 +43,43 @@ pipeline {
                 }
             }
         }
-        stage('Building & pushing users-producer Docker images to DockerHub') {
-            when {
-                expression {
-                    def changedFiles = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim().split('\n')
-                    return changedFiles.contains('docker/usersProducer.nonroot.Dockerfile') ||
-                           changedFiles.contains('extraction/usersWebApp.py')
+        stage('users-producer') {
+            stage('Building & pushing users-producer Docker images to DockerHub') {
+                when {
+                    expression {
+                        def changedFiles = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim().split('\n')
+                        return changedFiles.contains('docker/usersProducer.nonroot.Dockerfile') ||
+                            changedFiles.contains('extraction/usersWebApp.py')
+                    }
+                }
+                steps {
+                    sh '''
+                    HEAD_COMMIT=$(git rev-parse --short HEAD)
+                    TAG=$HEAD_COMMIT-$BUILD_ID
+                    docker build --rm -t $USERS_PRODUCER_PREFIX:$TAG -t $USERS_PRODUCER_PREFIX:latest -f docker/usersProducer.nonroot.Dockerfile .
+                    '''
+                    sh '''
+                        echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
+                        docker push $USERS_PRODUCER_PREFIX --all-tags
+                    '''
                 }
             }
-            steps {
-                sh '''
-                   HEAD_COMMIT=$(git rev-parse --short HEAD)
-                   TAG=$HEAD_COMMIT-$BUILD_ID
-                   docker build --rm -t $USERS_PRODUCER_PREFIX:$TAG -t $USERS_PRODUCER_PREFIX:latest -f docker/usersProducer.nonroot.Dockerfile .
-                '''
-                sh '''
-                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
-                    docker push $USERS_PRODUCER_PREFIX --all-tags
-                '''
+
+            stage('Deploying new image') {
+                steps {
+                    script {
+                        def HEAD_COMMIT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                        def TAG = "${HEAD_COMMIT}-${BUILD_ID}"
+                        
+                        sh """
+                            sed -i 's|image: ${env.USERS_PRODUCER_PREFIX}:.*|image: ${env.USERS_PRODUCER_PREFIX}:${TAG}|g' kube/users-producer/deployment.yaml
+                            kubectl apply -f kube/users-producer/deployment.yaml
+                        """
+                    }
+                }
             }
         }
+
         stage('Building & pushing albums-api Docker images to DockerHub') {
             when {
                 expression {

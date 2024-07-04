@@ -24,6 +24,6 @@ RUN chown -R appuser:appuser /usr/app
 
 USER appuser:appuser
 
-EXPOSE 5000/tcp
+EXPOSE 5000/
 
 CMD ["gunicorn", "extraction.usersWebApp:app", "-w", "4", "-b", "0.0.0.0:5000"]
