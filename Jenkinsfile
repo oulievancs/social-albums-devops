@@ -56,16 +56,12 @@ pipeline {
                    HEAD_COMMIT=$(git rev-parse --short HEAD)
                    TAG=$HEAD_COMMIT-$BUILD_ID
                    docker build --rm -t $USERS_PRODUCER_PREFIX:$TAG -t $USERS_PRODUCER_PREFIX:latest -f docker/usersProducer.nonroot.Dockerfile .
-                '''
-                sh '''
-                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
-                    docker push $USERS_PRODUCER_PREFIX --all-tags
-                '''
-                sh '''
-                    cat kube/users-producer/deployment.yaml
-                    sed -i '/containers:/,/initContainers:/ { /image:/ s|image:.*|image: '"${USERS_PRODUCER_PREFIX}:${TAG}"'| }' kube/users-producer/deployment.yaml
-                    cat kube/users-producer/deployment.yaml
-                    kubectl apply -f kube/users-producer/deployment.yaml                    
+                   echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
+                   docker push $USERS_PRODUCER_PREFIX --all-tags
+                   cat kube/users-producer/deployment.yaml
+                   sed -i '/containers:/,/initContainers:/ { /image:/ s|image:.*|image: '"${USERS_PRODUCER_PREFIX}:${TAG}"'| }' kube/users-producer/deployment.yaml
+                   cat kube/users-producer/deployment.yaml
+                   kubectl apply -f kube/users-producer/deployment.yaml                    
                 '''
             }
         }
