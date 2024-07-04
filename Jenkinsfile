@@ -61,11 +61,11 @@ pipeline {
                     echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
                     docker push $USERS_PRODUCER_PREFIX --all-tags
                 '''
-                sh """
+                sh '''
                     ls -alh
                     sed -i 's|image: ${env.USERS_PRODUCER_PREFIX}:.*|image: ${env.USERS_PRODUCER_PREFIX}:${TAG}|g' kube/users-producer/deployment.yaml
                     kubectl apply -f kube/users-producer/deployment.yaml
-                """
+                '''
             }
         }
         stage('Building, pushing & deploying albums-api container image') {
