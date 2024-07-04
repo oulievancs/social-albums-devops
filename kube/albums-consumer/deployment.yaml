@@ -19,7 +19,7 @@ spec:
       - envFrom:
           - secretRef:
               name: mysql-config-secrets
-        image: oulievancs/albums-consumer:0.0.2
+        image: angelosnm/albums-consumer:851dbf1-32
         name: social-albums-consumer
       initContainers:
         - name: wait-for-mysql-pod
