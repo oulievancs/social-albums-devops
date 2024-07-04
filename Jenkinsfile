@@ -5,6 +5,7 @@ pipeline {
     agent any
     environment {
         DOCKER_TOKEN=credentials('registry-creds')
+        KUBE_CONFIG=credentials('kube-config')
         DOCKER_USER='angelosnm'
         DOCKER_SERVER='docker.io'
         USERS_PRODUCER_PREFIX='docker.io/angelosnm/users-producer'
@@ -62,7 +63,7 @@ pipeline {
                     docker push $USERS_PRODUCER_PREFIX --all-tags
                 '''
                 sh '''
-                    ls -alh
+                    export KUBECONFIG=<(echo "$KUBE_CONFIG" | base64 --decode)
                     sed -i 's|image: ${env.USERS_PRODUCER_PREFIX}:.*|image: ${env.USERS_PRODUCER_PREFIX}:${TAG}|g' kube/users-producer/deployment.yaml
                     kubectl apply -f kube/users-producer/deployment.yaml
                 '''
