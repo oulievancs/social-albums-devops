@@ -17,12 +17,10 @@ spec:
     spec:
       containers:
       - envFrom:
-          - configMapRef:
+          - secretRef:
               name: mysql-config-secrets
         image: oulievancs/albums-consumer:0.0.2
         name: social-albums-consumer
-      # imagePullSecrets:
-      # - name: registry-creds
       initContainers:
         - name: wait-for-mysql-pod
           image: busybox:1.28

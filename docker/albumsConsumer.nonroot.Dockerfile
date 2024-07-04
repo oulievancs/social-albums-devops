@@ -19,7 +19,7 @@ COPY .env.kube .env
 
 COPY transformationLoad/transformationAndLoadApp.py transformationLoad/.
 
-RUN chown -R appuser:appuser .
+RUN chown -R appuser:appuser /usr/app
 
 USER appuser:appuser
 
