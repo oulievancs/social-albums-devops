@@ -78,8 +78,8 @@ pipeline {
                    docker build --rm -t $ALBUMS_API_PREFIX:$TAG -t $ALBUMS_API_PREFIX:latest -f docker/usersProducer.nonroot.Dockerfile .
                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
                    docker push $ALBUMS_API_PREFIX --all-tags
-                   sed -i '/containers:/,/initContainers:/ { /image:/ s|image:.*|image: '"${ALBUMS_API_PREFIX}:${TAG}"'| }' kube/albums-api/deployment.yaml
-                   kubectl apply -f kube/albums-api/deployment.yaml         
+                   sed -i '/containers:/,/initContainers:/ { /image:/ s|image:.*|image: '"${ALBUMS_API_PREFIX}:${TAG}"'| }' kube/api/deployment.yaml
+                   kubectl apply -f kube/api/deployment.yaml         
                 '''
             }
         }
@@ -144,11 +144,11 @@ pipeline {
                    docker push $ALBUMS_PRODUCER_PREFIX --all-tags
                    docker push $ALBUMS_CONSUMER_PREFIX --all-tags
                    sed -i '/containers:/,/initContainers:/ { /image:/ s|image:.*|image: '"${USERS_PRODUCER_PREFIX}:${TAG}"'| }' kube/users-producer/deployment.yaml
-                   sed -i '/containers:/,/initContainers:/ { /image:/ s|image:.*|image: '"${ALBUMS_API_PREFIX}:${TAG}"'| }' kube/albums-api/deployment.yaml
+                   sed -i '/containers:/,/initContainers:/ { /image:/ s|image:.*|image: '"${ALBUMS_API_PREFIX}:${TAG}"'| }' kube/api/deployment.yaml
                    sed -i '/containers:/,/initContainers:/ { /image:/ s|image:.*|image: '"${ALBUMS_PRODUCER_PREFIX}:${TAG}"'| }' kube/albums-producer/deployment.yaml
                    sed -i '/containers:/,/initContainers:/ { /image:/ s|image:.*|image: '"${ALBUMS_CONSUMER_PREFIX}:${TAG}"'| }' kube/albums-consumer/deployment.yaml
                    kubectl apply -f kube/users-producer/deployment.yaml
-                   kubectl apply -f kube/albums-api/deployment.yaml
+                   kubectl apply -f kube/api/deployment.yaml
                    kubectl apply -f kube/albums-producer/deployment.yaml
                    kubectl apply -f kube/albums-consumer/deployment.yaml
                 '''
