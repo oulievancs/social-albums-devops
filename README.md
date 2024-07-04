@@ -106,6 +106,63 @@ kubectl create secret generic keycloak-config-secrets -n social-albums \
 kubectl create configmap my-config -n social-albums --from-env-file=.env.kube
 ```
 
+#### albums-consumer
+```
+MYSQL_DB_HOST=social-albums-mysql
+MYSQL_DB_PORT=3306
+MYSQL_DB_NAME=social-music
+MYSQL_DB_USERNAME=koukos
+MYSQL_DB_PASSWORD=kx12kx12
+KAFKA_BROKER=social-albums-kafka
+KAFKA_TOPIC_USERS=users-topic
+KAFKA_TOPIC_ARTISTS=bands-topic
+```
+```
+kubectl create secret -n social-albums generic social-albums-consumer-secrets \
+  --from-literal=MYSQL_DB_HOST=social-albums-mysql \
+  --from-literal=MYSQL_DB_PORT=3306 \
+  --from-literal=MYSQL_DB_NAME=social-music \
+  --from-literal=MYSQL_DB_USERNAME=koukos \
+  --from-literal=MYSQL_DB_PASSWORD=kx12kx12 \
+  --from-literal=KAFKA_BROKER=social-albums-kafka:29092 \
+  --from-literal=KAFKA_TOPIC_USERS=users-topic \
+  --from-literal=KAFKA_TOPIC_ARTISTS=artists-topic
+````
+#### albums-producer
+```
+MONGODB_URI=
+MONGODB_NAMΕ=
+MONGODB_COLLECTION_NAME=
+KAFKA_TOPIC_ARTISTS=artists-topic
+```
+
+#### albums-api
+```
+MYSQL_DB_HOST=social-albums-mysql
+MYSQL_DB_PORT=3306
+MYSQL_DB_NAME=social-music
+MYSQL_DB_USERNAME=koukos
+MYSQL_DB_PASSWORD=kx12kx12
+```
+
+```
+kubectl create secret -n social-albums generic social-albums-api-secrets \
+  --from-literal=MYSQL_DB_HOST=social-albums-mysql \
+  --from-literal=MYSQL_DB_PORT=3306 \
+  --from-literal=MYSQL_DB_NAME=social-music \
+  --from-literal=MYSQL_DB_USERNAME=koukos \
+  --from-literal=MYSQL_DB_PASSWORD=kx12kx12
+```
+
+#### users-producer
+```
+KAFKA_TOPIC_USERS=users-topic
+DB_NEO4J=social-albums-neo4j:7074
+DB_NEO4J_USERNAME=neo4j
+DB_NEO4J_PASSWORD=fysalida
+DB_NEO4J_DATABASE_NAME=
+```
+
 ## UML Diagram
 
 UML diagram has been created using [mermaid](https://mermaid.js.org/)

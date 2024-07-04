@@ -18,7 +18,7 @@ spec:
       containers:
       - envFrom:
           - secretRef:
-              name: neo4j-config-secrets
+              name: users-producer-secrets
         image: angelosnm/users-producer:58174ab-33
         name: social-users-producer
       initContainers:
