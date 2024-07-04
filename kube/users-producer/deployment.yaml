@@ -18,11 +18,9 @@ spec:
       containers:
       - envFrom:
           - secretRef:
-              name: neo4j-config-secrets
-        image: oulievancs/users-producer:0.0.13
-        name: social-albums-producer
-      # imagePullSecrets:
-      # - name: registry-creds
+              name: users-producer-secrets
+        image: angelosnm/users-producer:58174ab-33
+        name: social-users-producer
       initContainers:
         - name: wait-for-neo4j-pod
           image: busybox:1.28

@@ -18,11 +18,9 @@ spec:
       containers:
       - envFrom:
           - secretRef:
-              name: mongo-config-secrets
-        image: oulievancs/albums-producer:0.0.9
+              name: albums-producer-secrets
+        image: angelosnm/albums-producer:58174ab-33
         name: social-albums-producer
-      # imagePullSecrets:
-      # - name: registry-creds
       initContainers:
         - name: wait-for-mongodb-pod
           image: busybox:1.28

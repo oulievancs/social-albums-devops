@@ -17,9 +17,9 @@ spec:
     spec:
       containers:
       - envFrom:
-          - configMapRef:
-              name: mysql-config-secrets
-        image: oulievancs/albums-api:0.0.2
+          - secretRef:
+              name: social-albums-api-secrets
+        image: angelosnm/albums-api:58174ab-33
         name: social-albums-api
       initContainers:
         - name: wait-for-mysql-pod
