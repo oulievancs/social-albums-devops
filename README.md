@@ -110,7 +110,7 @@ kubectl create configmap my-config -n social-albums --from-env-file=.env.kube
 ```
 MYSQL_DB_HOST=social-albums-mysql
 MYSQL_DB_PORT=3306
-MYSQL_DB_NAME=social-music
+MYSQL_DB_NAME=social_-_music
 MYSQL_DB_USERNAME=koukos
 MYSQL_DB_PASSWORD=kx12kx12
 KAFKA_BROKER=social-albums-kafka
@@ -121,7 +121,7 @@ KAFKA_TOPIC_ARTISTS=bands-topic
 kubectl create secret -n social-albums generic social-albums-consumer-secrets \
   --from-literal=MYSQL_DB_HOST=social-albums-mysql \
   --from-literal=MYSQL_DB_PORT=3306 \
-  --from-literal=MYSQL_DB_NAME=social-music \
+  --from-literal=MYSQL_DB_NAME=social_music \
   --from-literal=MYSQL_DB_USERNAME=koukos \
   --from-literal=MYSQL_DB_PASSWORD=kx12kx12 \
   --from-literal=KAFKA_BROKER=social-albums-kafka:29092 \
@@ -140,7 +140,7 @@ KAFKA_TOPIC_ARTISTS=artists-topic
 ```
 MYSQL_DB_HOST=social-albums-mysql
 MYSQL_DB_PORT=3306
-MYSQL_DB_NAME=social-music
+MYSQL_DB_NAME=social_music
 MYSQL_DB_USERNAME=koukos
 MYSQL_DB_PASSWORD=kx12kx12
 ```
@@ -149,7 +149,7 @@ MYSQL_DB_PASSWORD=kx12kx12
 kubectl create secret -n social-albums generic social-albums-api-secrets \
   --from-literal=MYSQL_DB_HOST=social-albums-mysql \
   --from-literal=MYSQL_DB_PORT=3306 \
-  --from-literal=MYSQL_DB_NAME=social-music \
+  --from-literal=MYSQL_DB_NAME=social_music \
   --from-literal=MYSQL_DB_USERNAME=koukos \
   --from-literal=MYSQL_DB_PASSWORD=kx12kx12
 ```
