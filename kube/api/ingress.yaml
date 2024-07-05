@@ -1,6 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
   name: social-albums-api
   namespace: social-albums
 spec:
@@ -8,7 +10,7 @@ spec:
   - host: api.social-albums.cucco.org
     http:
       paths:
-      - path: /social-albums-api
+      - path: /social-albums-api(/|$)(.*)
         pathType: Prefix
         backend:
           service:
