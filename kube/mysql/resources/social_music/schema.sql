@@ -1,6 +1,6 @@
-create database if not exists social-music;
+create database if not exists social_music;
 
-use social-music;
+use social_music;
 
 create table if not exists primary_genres
 (
