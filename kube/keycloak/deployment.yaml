@@ -16,11 +16,14 @@ spec:
         app: social-albums-keycloak
     spec:
       containers:
-      - envFrom:
-        - secretRef:
-            name: keycloak-config-secrets
+      - name: keycloak
         image: quay.io/keycloak/keycloak:24.0
-        name: keycloak
+        envFrom:
+          - secretRef:
+              name: keycloak-config-secrets
+        env:
+          - name: KC_HOSTNAME_STRICT
+            value: "false"
         command:
           - "/opt/keycloak/bin/kc.sh"
           - "start"
@@ -31,7 +34,7 @@ spec:
         volumeMounts:
           - mountPath: /opt/keycloak/data
             name: social-albums-keycloak-pvc
-      - livenessProbe:
+        livenessProbe:
           exec:
             command:
               - curl
@@ -41,7 +44,6 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
-        name: liveness-probe
       volumes:
         - name: social-albums-keycloak-pvc
           persistentVolumeClaim:
