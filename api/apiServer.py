@@ -27,11 +27,24 @@ mysqlCon = MySqlConnection(MYSQL_DB_HOST, MYSQL_DB_NAME, MYSQL_DB_USERNAME, MYSQ
 
 app = Flask(__name__)
 
+app.config.update({
+    "SECRET_KEY": "xBFUH367WQkG72Xmqt9aCVvcPtF8bjp1",
+    "TESTING": False,
+    "DEBUG": True,
+    "OIDC_CLIENT_SECRETS": "../client_secrets.json",
+    "OIDC_OPENID_REALM": "social-albums",
+    "OIDC_INTROSPECTION_AUTH_METHOD": "bearer",
+    "OIDC-SCOPES": ["openid"]
+})
+
+oidc = OpenIDConnect(app)
+
 """Route accepting a user's mail that belongs to a user and return a suggestion of albums and artists
 to listen."""
 
 
 @app.route("/suggest_albums/<string:email>", methods=["GET"])
+@oidc.accept_token(require_token=True, scopes_required=["openid"])
 @ValidateParameters()
 def suggest_albums(email: str = Route(str, func=WebUtils.generate_date_validation(r"[^@]+@[^@]+\.[^@]+"))):
     result = {}
@@ -51,6 +64,7 @@ def suggest_albums(email: str = Route(str, func=WebUtils.generate_date_validatio
 
 
 @app.route("/suggest_common/<string:email>", methods=["GET"])
+@oidc.accept_token(require_token=True, scopes_required=["openid"])
 @ValidateParameters()
 def suggest_artists(email: str = Route(str, func=WebUtils.generate_date_validation(r"[^@]+@[^@]+\.[^@]+"))):
     result = {}
@@ -70,6 +84,7 @@ def suggest_artists(email: str = Route(str, func=WebUtils.generate_date_validati
 
 
 @app.route("/suggest_album/<string:email>", methods=["GET"])
+@oidc.accept_token(require_token=True, scopes_required=["openid"])
 @ValidateParameters()
 def suggest_album(email: str = Route(str, func=WebUtils.generate_date_validation(r"[^@]+@[^@]+\.[^@]+"))):
     result = {}

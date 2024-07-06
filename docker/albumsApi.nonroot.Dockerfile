@@ -17,6 +17,7 @@ RUN mkdir common \
 COPY common/mySQLDb.py common/.
 COPY common/webUtils.py common/.
 COPY *.kube .
+COPY client_secrets.json .
 
 COPY api/apiServer.py api/.
 
