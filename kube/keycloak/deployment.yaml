@@ -21,14 +21,13 @@ spec:
         envFrom:
           - secretRef:
               name: keycloak-config-secrets
-        env:
-          - name: KC_HOSTNAME_STRICT
-            value: "false"
         command:
           - "/opt/keycloak/bin/kc.sh"
           - "start"
-          - --health-enabled=true
-          - --metrics-enabled=true
+          - "--http-enabled=true"
+          - "--hostname-strict-https=false"
+          - "--hostname-strict=false"
+          - "--proxy=edge"
         ports:
           - containerPort: 8080
         volumeMounts:

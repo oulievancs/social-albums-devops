@@ -7,9 +7,6 @@ configMapGenerator:
   - name: mysql-social-schema-config
     files:
       - resources/social_music/schema.sql
-  - name: mysql-keycloak-schema-config
-    files:
-       - resources/keycloak/schema.sql
 resources:
   - deployment.yaml
   - service.yaml

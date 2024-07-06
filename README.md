@@ -68,6 +68,16 @@ kubectl create secret generic mysql-config-secrets -n social-albums \
   --from-literal=MYSQL_PASSWORD=kx12kx12
 ```
 
+#### mysql-config-secrets on keycloak deployment
+
+```
+kubectl create secret generic mysql-config-secrets -n social-albums \
+  --from-literal=MYSQL_ROOT_PASSWORD=kx12kx12 \
+  --from-literal=MYSQL_DATABASE=keycloak \
+  --from-literal=MYSQL_USER=koukos \
+  --from-literal=MYSQL_PASSWORD=kx12kx12
+```
+
 #### mongo-config-secrets
 
 ```

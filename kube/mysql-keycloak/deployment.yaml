@@ -20,7 +20,7 @@ data:
     
     export MYSQL_PWD=$(echo $MYSQL_ROOT_PASSWORD)
     
-    mysql -u root -e "source /var/db/config/social-album/mysql-social-schema-config.sql"
+    mysql -u root -e "source /var/db/config/keycloak/keycloak-schema-config.sql"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -40,18 +40,18 @@ spec:
         app: social-albums-mysql
     spec:
       containers:
-        - envFrom:
-            - secretRef:
-                name: mysql-config-secrets
+        - name: mysql
           image: mysql:8.0.33
-          name: mysql
           ports:
             - containerPort: 3306
+          envFrom:
+            - secretRef:
+                name: mysql-config-secrets
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: social-albums-mysql-pvc
-            - mountPath: /var/db/config/social-album
-              name: mysql-social-schema-config-vol
+            - mountPath: /var/db/config/keycloak
+              name: mysql-keycloak-schema-config-vol
             - name: configmap-entry-volume
               mountPath: /bin/entrypoint.sh
               readOnly: true
@@ -73,13 +73,13 @@ spec:
         - name: social-albums-mysql-pvc
           persistentVolumeClaim:
             claimName: social-albums-mysql-pvc
-        - name: mysql-social-schema-config-vol
+        - name: mysql-keycloak-schema-config-vol
           configMap:
-            name: mysql-social-schema-config
+            name: mysql-keycloak-schema-config
             defaultMode: 420
             items:
               - key: schema.sql
-                path: mysql-social-schema-config.sql
+                path: keycloak-schema-config.sql
         - name: configmap-entry-volume
           configMap:
             defaultMode: 0700
