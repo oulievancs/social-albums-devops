@@ -1,0 +1,38 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: social-albums-dummy
+  namespace: social-albums
+  labels:
+    app: social-albums-dummy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: social-albums-dummy
+  template:
+    metadata:
+      labels:
+        app: social-albums-dummy
+    spec:
+      containers:
+      - envFrom:
+          - secretRef:
+              name: albums-producer-secrets
+          - secretRef:
+              name: users-producer-secrets
+        image: oulievancs/dummy:0.0.5
+        name: social-albums-dummy
+      initContainers:
+        - name: wait-for-neo4j-pod
+          image: busybox:1.28
+          args:
+            - /bin/sh
+            - -c
+            - until telnet social-albums-neo4j 7687; do echo waiting for neo4j-service; sleep 2; done;
+        - name: wait-for-mongodb-pod
+          image: busybox:1.28
+          args:
+            - /bin/sh
+            - -c
+            - until telnet social-albums-mongo 27017; do echo waiting for mongodb-service; sleep 2; done;
