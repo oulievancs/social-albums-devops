@@ -12,12 +12,13 @@ COPY ../requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN mkdir common \
-    api
+    api \
+    deps
 
 COPY common/mySQLDb.py common/.
 COPY common/webUtils.py common/.
-COPY *.kube .
-COPY client_secrets.json .
+COPY deps/. deps/.
+COPY .env.kube .env
 
 COPY api/apiServer.py api/.
 
@@ -27,4 +28,4 @@ USER appuser:appuser
 
 EXPOSE 5000
 
-CMD ["gunicorn", "api.apiServer:app", "-w", "4", "-b", "0.0.0.0:5000"]
+CMD ["gunicorn", "api.apiServer:app", "-w", "4", "-b", "0.0.0.0:5000", "--worker-clas", "uvicorn.workers.UvicornWorker", "--timeout", "600"]

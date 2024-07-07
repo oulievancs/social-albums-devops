@@ -95,6 +95,15 @@ kubectl create secret generic neo4j-config-secrets -n social-albums \
   --from-literal=MYNEO4J_AUTH_PASS=fysalida
 ```
 
+#### users-producer-config-secrets
+
+```
+kubectl create secret generic users-producer-secrets -n social-albums \
+  --from-literal=NEO4J_AUTH=neo4j/fysalida \
+  --from-literal=MYNEO4J_AUTH_USER=neo4j \
+  --from-literal=MYNEO4J_AUTH_PASS=fysalida
+```
+
 #### keycloak-config-secrets
 
 ```
@@ -140,10 +149,9 @@ kubectl create secret -n social-albums generic social-albums-consumer-secrets \
 ````
 #### albums-producer
 ```
-MONGODB_URI=
-MONGODB_NAMΕ=
-MONGODB_COLLECTION_NAME=
-KAFKA_TOPIC_ARTISTS=artists-topic
+kubectl create secret generic albums-producer-secrets -n social-albums \
+  --from-literal=MONGO_INITDB_ROOT_USERNAME=koukos \
+  --from-literal=MONGO_INITDB_ROOT_PASSWORD=kx12kx12
 ```
 
 #### albums-api
@@ -171,6 +179,17 @@ DB_NEO4J=social-albums-neo4j:7074
 DB_NEO4J_USERNAME=neo4j
 DB_NEO4J_PASSWORD=fysalida
 DB_NEO4J_DATABASE_NAME=
+```
+
+
+#### keycloak-resource-server-access
+```
+kubectl create secret -n social-albums generic social-albums-keycloak-config-secrets \
+  --from-literal=AUTHORIZATION_URL=https://keycloak.social-albums.cucco.org/ \
+  --from-literal=KEYCLOAK_CLIENT_ID=social-albums-be \
+  --from-literal=KEYCLOAK_REALM=social-albums \
+  --from-literal=KEYCLOAK_CLIENT_SECRET=zwufAvtnaSYNaRrJVQMOdgnhlx3kXEfH \
+  --from-literal=TOKEN_URL=https://keycloak.social-albums.cucco.org/auth/realms/social-albums/protocol/openid-connect/token
 ```
 
 ## UML Diagram

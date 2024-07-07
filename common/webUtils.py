@@ -4,9 +4,9 @@ import re
 import traceback
 import uuid
 from datetime import datetime, date
+from fastapi.encoders import jsonable_encoder
 
 from bson import json_util
-from flask import json, jsonify
 
 
 class WebUtils:
@@ -17,7 +17,7 @@ class WebUtils:
 
     @staticmethod
     def parse_json(data):
-        return json.loads(json_util.dumps(data))
+        return jsonable_encoder(json_util.dumps(data))
 
     @staticmethod
     def date_str_to_iso_format(date_str, format="%Y-%m-%d") -> datetime:
@@ -117,7 +117,7 @@ class WebUtils:
 
         logging.error(traceback.format_exc())
 
-        return jsonify(error=str(msg)), code
+        return jsonable_encoder({error: str(msg)}), code
 
     """Map a tuple into a dictionary containing the given properties' values."""
 

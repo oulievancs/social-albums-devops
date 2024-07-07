@@ -1,7 +1,6 @@
 .git*
 .env*
 Dockerfile
-resources/
 kube/
 README.md
 # But include the .env.kube file

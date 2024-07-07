@@ -19,7 +19,8 @@ spec:
       - envFrom:
           - secretRef:
               name: albums-producer-secrets
-        image: angelosnm/albums-producer:58174ab-33
+          - secretRef:
+              name: social-albums-keycloak-config-secrets
         name: social-albums-producer
       initContainers:
         - name: wait-for-mongodb-pod

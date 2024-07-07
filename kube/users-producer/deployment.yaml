@@ -19,6 +19,8 @@ spec:
       - envFrom:
           - secretRef:
               name: users-producer-secrets
+          - secretRef:
+              name: social-albums-keycloak-config-secrets
         image: angelosnm/users-producer:58174ab-33
         name: social-users-producer
       initContainers:

@@ -2,14 +2,18 @@
 in a MySQL database and apply intelligent functionalities."""
 import logging
 import os
+import sys
 from random import randint
 
+from fastapi import FastAPI, Security, Path, HTTPException
+from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
-from flask import Flask, jsonify, abort
-from flask_parameter_validation import Route, ValidateParameters
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import Json
 
 from common.mySQLDb import MySqlConnection, MySQLResult
 from common.webUtils import WebUtils
+from deps.auth import get_auth
 
 # Load environment variables from .env file
 load_dotenv()
@@ -25,28 +29,46 @@ MYSQL_DB_PASSWORD = os.environ.get("MYSQL_DB_PASSWORD")
 
 mysqlCon = MySqlConnection(MYSQL_DB_HOST, MYSQL_DB_NAME, MYSQL_DB_USERNAME, MYSQL_DB_PASSWORD, MYSQL_DB_PORT)
 
-app = Flask(__name__)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+stream_handler = logging.StreamHandler(sys.stdout)
+log_formatter = logging.Formatter(
+    "%(asctime)s [%(processName)s: %(process)d] [%(threadName)s: %(thread)d] [%(levelname)s] %(name)s: %(message)s")
+stream_handler.setFormatter(log_formatter)
+logger.addHandler(stream_handler)
 
-app.config.update({
-    "SECRET_KEY": "xBFUH367WQkG72Xmqt9aCVvcPtF8bjp1",
-    "TESTING": False,
-    "DEBUG": True,
-    "OIDC_CLIENT_SECRETS": "../client_secrets.json",
-    "OIDC_OPENID_REALM": "social-albums",
-    "OIDC_INTROSPECTION_AUTH_METHOD": "bearer",
-    "OIDC-SCOPES": ["openid"]
-})
+logger.info('API is starting up')
 
-oidc = OpenIDConnect(app)
+app = FastAPI()
+
+origins = [
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.on_event("startup")
+async def on_startup():
+    logging.basicConfig()
+    logging.root.setLevel(logging.INFO)
+
 
 """Route accepting a user's mail that belongs to a user and return a suggestion of albums and artists
 to listen."""
 
 
-@app.route("/suggest_albums/<string:email>", methods=["GET"])
-@oidc.accept_token(require_token=True, scopes_required=["openid"])
-@ValidateParameters()
-def suggest_albums(email: str = Route(str, func=WebUtils.generate_date_validation(r"[^@]+@[^@]+\.[^@]+"))):
+@app.get("/suggest_albums/{email}")
+def suggest_albums(email: str = Path(..., description="The email gonna be filtered",
+                                     func=WebUtils.generate_date_validation(r"[^@]+@[^@]+\.[^@]+")),
+                   identity: Json = Security(get_auth)):#Security(get_auth, scopes=["my-scope"])
+    logger.debug("Suggestion called for user email [%s] with identity [%s].", email, identity)
     result = {}
 
     connection = None
@@ -57,16 +79,16 @@ def suggest_albums(email: str = Route(str, func=WebUtils.generate_date_validatio
         if connection is not None:
             connection.close_connection()
 
-    return jsonify(result)
+    return JSONResponse(content=result)
 
 
 """Route accepting a user's mail that belongs to a user and returns a suggestion of artists to listen."""
 
 
-@app.route("/suggest_common/<string:email>", methods=["GET"])
-@oidc.accept_token(require_token=True, scopes_required=["openid"])
-@ValidateParameters()
-def suggest_artists(email: str = Route(str, func=WebUtils.generate_date_validation(r"[^@]+@[^@]+\.[^@]+"))):
+@app.get("/suggest_common/{email}")
+def suggest_artists(email: str = Path(..., func=WebUtils.generate_date_validation(r"[^@]+@[^@]+\.[^@]+")),
+                    identity: Json = Security(get_auth)):
+    logger.debug("Suggestion called for user email [%s] with identity [%s].", email, identity)
     result = {}
 
     connection = None
@@ -77,16 +99,16 @@ def suggest_artists(email: str = Route(str, func=WebUtils.generate_date_validati
         if connection is not None:
             connection.close_connection()
 
-    return jsonify(result)
+    return JSONResponse(content=result)
 
 
 """Route accepting a user's mail and an album."""
 
 
-@app.route("/suggest_album/<string:email>", methods=["GET"])
-@oidc.accept_token(require_token=True, scopes_required=["openid"])
-@ValidateParameters()
-def suggest_album(email: str = Route(str, func=WebUtils.generate_date_validation(r"[^@]+@[^@]+\.[^@]+"))):
+@app.get("/suggest_album/{email}")
+def suggest_album(email: str = Path(..., func=WebUtils.generate_date_validation(r"[^@]+@[^@]+\.[^@]+")),
+                  identity: Json = Security(get_auth)):
+    logger.debug("Suggestion called for user email [%s] with identity [%s].", email, identity)
     result = {}
 
     connection = None
@@ -97,7 +119,7 @@ def suggest_album(email: str = Route(str, func=WebUtils.generate_date_validation
         if connection is not None:
             connection.close_connection()
 
-    return jsonify(result)
+    return JSONResponse(content=result)
 
 
 """Retrieves a user by the provided email address."""
@@ -115,7 +137,8 @@ def get_user_by_email(email: str, connection: MySQLResult) -> {"id": int, "email
     if res_user.rowcount > 0:
         return WebUtils.map_tuple(res_user.fetchone, ["id", "email", "first_name", "last_name", "gender", "ref_aa"])
     else:
-        raise abort(WebUtils.NOT_FOUND, description=f"""User requested with email [{email}] not found!""")
+        raise HTTPException(status_code=WebUtils.NOT_FOUND,
+                            detail=f"""User requested with email [{email}] not found!""")
 
 
 """Get the albums regarding the provided artist."""
@@ -325,13 +348,6 @@ def get_one_random_album(user_email: str, connection: MySQLResult):
 
 
 # Handle HTTP errors with a JSON response
-@app.errorhandler(Exception)
+@app.exception_handler(Exception)
 def http_error(error):
     return WebUtils.handle_error(error)
-
-
-if __name__ == "__main__":
-    logging.basicConfig()
-    logging.root.setLevel(logging.INFO)
-
-    app.run(host="0.0.0.0", port=5000, debug=True)

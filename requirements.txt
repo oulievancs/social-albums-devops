@@ -8,9 +8,6 @@ colorama==0.4.6
 cors==1.0.1
 dnspython==2.5.0
 filelock==3.13.1
-Flask==3.0.1
-Flask-Cors==4.0.0
-Flask-Parameter-Validation==2.2.4
 future==0.18.3
 gevent==23.9.1
 greenlet==3.0.3
@@ -45,3 +42,11 @@ zope.event==5.0
 zope.interface==6.1
 gunicorn==20.1.0
 kafka-python-ng==2.2.2
+fastapi==0.110.0
+python-keycloak==3.9.1
+jwcrypto==1.5.5
+cryptography==42.0.5
+asyncpg==0.29.0
+uvicorn==0.27.1
+pydantic==2.6.3
+pydantic_core==2.16.3

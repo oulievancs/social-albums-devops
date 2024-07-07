@@ -39,9 +39,9 @@ spec:
               command:
                 - wget
                 - http://127.0.0.1:7474
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
+            initialDelaySeconds: 120
+            periodSeconds: 20
+            timeoutSeconds: 10
       volumes:
         - name: social-albums-neo4j-pvc
           persistentVolumeClaim:
