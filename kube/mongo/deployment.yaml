@@ -16,26 +16,34 @@ spec:
         app: social-albums-mongo
     spec:
       containers:
-        - envFrom:
-            - secretRef:
-                name: mongo-config-secrets
+        - name: mongo
           image: mongo:7.0.5
-          name: mongo
           ports:
             - containerPort: 27017
+          envFrom:
+            - secretRef:
+                name: mongo-config-secrets
+          env:
+            - name: MONGO_INITDB_DATABASE
+              value: MusicAlbums
           volumeMounts:
             - mountPath: /data/db
               name: social-albums-mongo-pvc
+            - mountPath: /docker-entrypoint-initdb.d/init-mongo-db-with-collections.js:ro
+              name: mongodb-social-schema-config-vol
           livenessProbe:
-            exec:
-              command:
-                - mongo
-                - --disableImplicitSessions
-                - --eval
-            initialDelaySeconds: 30
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 60
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 10
       volumes:
         - name: social-albums-mongo-pvc
           persistentVolumeClaim:
             claimName: social-albums-mongo-pvc
+        - name: mongodb-social-schema-config-vol
+          configMap:
+            name: mongodb-social-schema-config
+            items:
+              - key: init-mongo-db-with-collections.js
+                path: init-mongo-db-with-collections.js
