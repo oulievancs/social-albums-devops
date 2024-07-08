@@ -159,18 +159,3 @@ pipeline {
             }
         }
     }
-
-    post {
-        always {
-            script {
-                if (currentBuild.result != 'NOT_BUILT') {
-                    sh 'docker image prune -a -f'
-                }
-            }
-            emailext(body: content, mimeType: 'text/html',
-            replyTo: '$DEFAULT_REPLYTO', subject: subject,
-            to: 'itp23108@hua.gr', attachLog: true )
-            cleanWs()
-        }
-    }
-}
