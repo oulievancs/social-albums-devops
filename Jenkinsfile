@@ -36,6 +36,9 @@ pipeline {
                     def commonChanges = changedFiles.any { file -> 
                         file.startsWith('common/')
                     }
+                    def depsChanges = changedFiles.any { file -> 
+                        file.startsWith('deps/')
+                    }
                     if (!usersProducerChanges && !albumsApiChanges && !albumsProducerChanges && !albumsConsumerChanges && !commonChanges) {
                         currentBuild.result = 'NOT_BUILT'
                         error('No relevant changes detected. Skipping build.')
@@ -127,7 +130,7 @@ pipeline {
             when {
                 expression {
                     def changedFiles = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim().split('\n')
-                    return changedFiles.any { file -> file.startsWith('common/') }
+                    return changedFiles.any { file -> file.startsWith('common/') || file -> file.startsWith('deps/')}
                 }
             }
             steps {
