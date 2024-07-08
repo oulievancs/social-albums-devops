@@ -61,8 +61,8 @@ spec:
               command:
                 - mysqladmin
                 - ping
-            initialDelaySeconds: 120
-            periodSeconds: 15
+            initialDelaySeconds: 240
+            periodSeconds: 60
             timeoutSeconds: 15
           lifecycle:
             postStart:

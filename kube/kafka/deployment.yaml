@@ -29,3 +29,6 @@ spec:
           livenessProbe:
             tcpSocket:
               port: 29092
+            initialDelaySeconds: 180
+            periodSeconds: 60
+            timeoutSeconds: 15

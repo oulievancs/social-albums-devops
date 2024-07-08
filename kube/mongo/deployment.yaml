@@ -34,9 +34,9 @@ spec:
           livenessProbe:
             tcpSocket:
               port: 27017
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            timeoutSeconds: 10
+            initialDelaySeconds: 180
+            periodSeconds: 60
+            timeoutSeconds: 15
       volumes:
         - name: social-albums-mongo-pvc
           persistentVolumeClaim:
