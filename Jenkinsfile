@@ -130,7 +130,8 @@ pipeline {
             when {
                 expression {
                     def changedFiles = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim().split('\n')
-                    return changedFiles.any { file -> file.startsWith('common/') || file -> file.startsWith('deps/')}
+                     return changedFiles.any { file -> file.startsWith('common/') || file.startsWith('deps/') }
+                    }
                 }
             }
             steps {
