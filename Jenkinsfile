@@ -133,7 +133,7 @@ pipeline {
                      return changedFiles.any { file -> file.startsWith('common/') || file.startsWith('deps/') }
                     }
                 }
-            }
+            
             steps {
                 sh '''
                    HEAD_COMMIT=$(git rev-parse --short HEAD)
