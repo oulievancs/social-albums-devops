@@ -1,128 +1,91 @@
-create database if not exists social_music;
+CREATE DATABASE IF NOT EXISTS social_music;
 
-use social_music;
+USE social_music;
 
-create table if not exists primary_genres
-(
-    id          int auto_increment
-        constraint `PRIMARY`
-        primary key,
-    description varchar(255) not null,
-    constraint primary_genres_description_uindex
-        unique (description)
+CREATE TABLE IF NOT EXISTS primary_genres (
+    id INT AUTO_INCREMENT,
+    description VARCHAR(255) NOT NULL,
+    CONSTRAINT primary_genres_description_uindex UNIQUE (description),
+    CONSTRAINT primary_genres_pk PRIMARY KEY (id)
 );
 
-create table if not exists secondary_genres
-(
-    id          int auto_increment
-        constraint `PRIMARY`
-        primary key,
-    description varchar(255) not null,
-    constraint secondary_genres_description_uindex
-        unique (description)
+CREATE TABLE IF NOT EXISTS secondary_genres (
+    id INT AUTO_INCREMENT,
+    description VARCHAR(255) NOT NULL,
+    CONSTRAINT secondary_genres_description_uindex UNIQUE (description),
+    CONSTRAINT secondary_genres_pk PRIMARY KEY (id)
 );
 
-create table if not exists user
-(
-    id         int auto_increment
-        constraint `PRIMARY`
-        primary key,
-    email      varchar(255) null,
-    first_name varchar(255) not null,
-    gender     varchar(25)  null,
-    last_name  varchar(255) null,
-    ref_aa     int          not null,
-    constraint user_ref_aa_uindex
-        unique (ref_aa)
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT,
+    email VARCHAR(255) NULL,
+    first_name VARCHAR(255) NOT NULL,
+    gender VARCHAR(25) NULL,
+    last_name VARCHAR(255) NULL,
+    ref_aa INT NOT NULL,
+    CONSTRAINT users_ref_aa_uindex UNIQUE (ref_aa),
+    CONSTRAINT users_pk PRIMARY KEY (id)
 );
 
-create table if not exists artist
-(
-    id     int auto_increment
-        constraint `PRIMARY`
-        primary key,
-    year   int          null,
-    name   varchar(255) not null,
-    ref_aa int          not null,
-    constraint artist_ref_aa_uindex
-        unique (ref_aa)
+CREATE TABLE IF NOT EXISTS artist (
+    id INT AUTO_INCREMENT,
+    year INT NULL,
+    name VARCHAR(255) NOT NULL,
+    ref_aa INT NOT NULL,
+    CONSTRAINT artist_ref_aa_uindex UNIQUE (ref_aa),
+    CONSTRAINT artist_pk PRIMARY KEY (id)
 );
 
-create table if not exists album
-(
-    id           int auto_increment
-        constraint `PRIMARY`
-        primary key,
-    name         varchar(255) not null,
-    reviews      int          null,
-    avg_rating   double       null,
-    ratings      int          null,
-    artist_id    int          not null,
-    release_date date         null,
-    constraint album_artist_id_fk
-        foreign key (artist_id) references artist (id)
+CREATE TABLE IF NOT EXISTS album (
+    id INT AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    reviews INT NULL,
+    avg_rating DOUBLE NULL,
+    ratings INT NULL,
+    artist_id INT NOT NULL,
+    release_date DATE NULL,
+    CONSTRAINT album_artist_id_fk FOREIGN KEY (artist_id) REFERENCES artist (id),
+    CONSTRAINT album_pk PRIMARY KEY (id)
 );
 
-create index album_artist_id_index
-    on album (artist_id);
+CREATE INDEX album_artist_id_index ON album (artist_id);
+CREATE INDEX album_name_index ON album (name);
 
-create index album_name_index
-    on album (name);
-
-create table if not exists descriptors
-(
-    id          int auto_increment
-        constraint `PRIMARY`
-        primary key,
-    description varchar(255) not null,
-    constraint descriptors_descripption_uindex
-        unique (description)
+CREATE TABLE IF NOT EXISTS descriptors (
+    id INT AUTO_INCREMENT,
+    description VARCHAR(255) NOT NULL,
+    CONSTRAINT descriptors_description_uindex UNIQUE (description),
+    CONSTRAINT descriptors_pk PRIMARY KEY (id)
 );
 
-create table if not exists descriptors_asoc
-(
-    id              int auto_increment
-        constraint `PRIMARY`
-        primary key,
-    artist_id       int         not null,
-    descriptor_id   int         not null,
-    descriptor_type varchar(30) not null,
-    constraint descriptors_asoc_artist_id_fk
-        foreign key (artist_id) references artist (id)
+CREATE TABLE IF NOT EXISTS descriptors_asoc (
+    id INT AUTO_INCREMENT,
+    artist_id INT NOT NULL,
+    descriptor_id INT NOT NULL,
+    descriptor_type VARCHAR(30) NOT NULL,
+    CONSTRAINT descriptors_asoc_artist_id_fk FOREIGN KEY (artist_id) REFERENCES artist (id),
+    CONSTRAINT descriptors_asoc_pk PRIMARY KEY (id)
 );
 
-create index descriptors_asoc_artist_id_descriptor_id_index
-    on descriptors_asoc (artist_id, descriptor_id);
+CREATE INDEX descriptors_asoc_artist_id_descriptor_id_index ON descriptors_asoc (artist_id, descriptor_id);
+CREATE INDEX descriptors_asoc_descriptor_type_index ON descriptors_asoc (descriptor_type);
 
-create index descriptors_asoc_descriptor_type_index
-    on descriptors_asoc (descriptor_type);
-
-create table if not exists friendship
-(
-    id             int auto_increment
-        constraint `PRIMARY`
-        primary key,
-    user_id        int not null,
-    friend_user_id int not null,
-    constraint friendship_user_id_fk
-        foreign key (user_id) references user (id),
-    constraint friendship_user_id_fk_2
-        foreign key (friend_user_id) references user (id)
+CREATE TABLE IF NOT EXISTS friendship (
+    id INT AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    friend_user_id INT NOT NULL,
+    CONSTRAINT friendship_user_id_fk FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT friendship_friend_user_id_fk FOREIGN KEY (friend_user_id) REFERENCES users (id),
+    CONSTRAINT friendship_pk PRIMARY KEY (id)
 );
 
-create index friendship_user_id_index
-    on friendship (user_id);
+CREATE INDEX friendship_user_id_index ON friendship (user_id);
 
-create table if not exists listen
-(
-    id        int auto_increment
-        constraint `PRIMARY`
-        primary key,
-    user_id   int not null,
-    artist_id int not null,
-    constraint listen_artist_id_fk
-        foreign key (artist_id) references artist (id),
-    constraint listen_user_id_fk
-        foreign key (user_id) references user (id)
+CREATE TABLE IF NOT EXISTS listen (
+    id INT AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    artist_id INT NOT NULL,
+    CONSTRAINT listen_artist_id_fk FOREIGN KEY (artist_id) REFERENCES artist (id),
+    CONSTRAINT listen_user_id_fk FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT listen_pk PRIMARY KEY (id)
 );
-
