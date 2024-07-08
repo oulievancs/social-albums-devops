@@ -28,4 +28,4 @@ spec:
             - containerPort: 29093
           livenessProbe:
             tcpSocket:
-              port: 9092
+              port: 29092
