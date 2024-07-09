@@ -17,7 +17,7 @@ class WebUtils:
 
     @staticmethod
     def parse_json(data):
-        return jsonable_encoder(json_util.dumps(data))
+        return json_util.dumps(data)
 
     @staticmethod
     def date_str_to_iso_format(date_str, format="%Y-%m-%d") -> datetime:
