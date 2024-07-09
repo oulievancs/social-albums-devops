@@ -253,7 +253,7 @@ def main_users():
         try:
             connection = mysqlCon.pool_connection()
 
-            consume_user(user.value, connection)
+            consume_user(json.loads(user.value), connection)
 
             connection.commit()
         except Exception as e:
@@ -282,7 +282,7 @@ def main_artists():
         try:
             connection = mysqlCon.pool_connection()
 
-            consume_artist(artist.value, connection)
+            consume_artist(json.loads(artist.value), connection)
 
             connection.commit()
         except Exception as e:
