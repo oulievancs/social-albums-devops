@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: social-albums-zookeper
+  name: social-albums-zookeper
+  namespace: social-albums
+spec:
+  ports:
+  - port: 2181
+    targetPort: 2181
+    name: external
+  selector:
+    app: social-albums-zookeper
+  type: ClusterIP

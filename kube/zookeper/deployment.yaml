@@ -2,40 +2,31 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: social-albums-kafka
-  name: social-albums-kafka
+    app: social-albums-zookeper
+  name: social-albums-zookeper
   namespace: social-albums
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: social-albums-kafka
+      app: social-albums-zookeper
   template:
     metadata:
       labels:
-        app: social-albums-kafka
+        app: social-albums-zookeper
     spec:
       enableServiceLinks: false # Used to prevent Kubernetes environment variables to be injected into the pod and cause conflicts (https://github.com/confluentinc/schema-registry/issues/689#issuecomment-827716674)
       containers:
-        - name: kafka
-          image: confluentinc/cp-kafka:7.5.0
+        - name: zookeper
+          image: confluentinc/cp-zookeeper:7.6.1
           envFrom:
             - configMapRef:
-                name: social-albums-kafka-config
+                name: social-albums-zookeper-config
           ports:
-            - containerPort: 9092
-            - containerPort: 29092
-            - containerPort: 29093
+            - containerPort: 2181
           livenessProbe:
             tcpSocket:
-              port: 29092
+              port: 2181
             initialDelaySeconds: 180
             periodSeconds: 60
             timeoutSeconds: 15
-      initContainers:
-        - name: wait-for-zookeper-pod
-          image: busybox:1.28
-          args:
-            - /bin/sh
-            - -c
-            - until telnet social-albums-zookeper 2181; do echo waiting for zookeper-service; sleep 2; done;

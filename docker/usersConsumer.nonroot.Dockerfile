@@ -16,6 +16,7 @@ RUN mkdir common
 COPY common/ common/
 
 COPY transformationLoad/* .
+COPY .env.kube .env
 
 RUN chown -R appuser:appuser .
 
