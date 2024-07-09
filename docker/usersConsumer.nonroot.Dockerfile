@@ -13,9 +13,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 RUN mkdir common
 
-COPY common/ common/
+COPY common/mySQLDb.py common/.
+COPY common/webUtils.py common/.
 
-COPY transformationLoad/* .
+COPY transformationLoad/consumeUsers.py .
+COPY transformationLoad/transformationAndLoadApp.py .
 COPY .env.kube .env
 
 RUN chown -R appuser:appuser .
