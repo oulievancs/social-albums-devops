@@ -196,7 +196,7 @@ def get_friends_of_user(user_id: int, connection: MySQLResult) -> set[int]:
     if res_friends.rowcount > 0:
         return {friend_id[0] for friend_id in res_friends.fetchall}
     else:
-        return set()
+        return {-1}
 
 
 def get_artists_that_users_friends_listen(friend_user_ids: [int], connection: MySQLResult) -> set[int]:
@@ -234,7 +234,7 @@ def get_artists_in_users(user_ids: [int], filters: {"descriptors": set[int]}, co
     if res_artists.rowcount > 0:
         return {artist_id[0] for artist_id in res_artists.fetchall}
     else:
-        return set()
+        return {-1}
 
 
 """Retrieve the artist's information with id's provied."""
@@ -297,7 +297,7 @@ def get_descriptors_regarding_user(user_id: int, connection: MySQLResult) -> set
     if res_listen.rowcount > 0:
         return {tpl[0] for tpl in res_listen.fetchall}
     else:
-        return set()
+        return {-1}
 
 
 """Suggestions of artists regarding the artists that the user's email not has in
@@ -313,6 +313,9 @@ def get_artists_that_friends_listen(user_email: str, connection: MySQLResult):
 
     excluded_user_s_artists = set(f for f in artists_of_friends if f not in user_artists)
 
+    if len(excluded_user_s_artists) == 0:
+        excluded_user_s_artists = {-1}
+
     return get_artists(excluded_user_s_artists, None, connection)
 
 
@@ -326,6 +329,9 @@ def get_artists_that_friends_listen_on_common_descriptors(user_email: str, conne
     artists_of_friends = get_artists_in_users(friends_ids, {"descriptors": descriptors}, connection)
 
     excluded_user_s_artists = set(f for f in artists_of_friends if f not in user_artists)
+
+    if len(excluded_user_s_artists) == 0:
+        excluded_user_s_artists = {-1}
 
     return get_artists(excluded_user_s_artists, None, connection)
 
@@ -343,6 +349,9 @@ def get_one_random_album(user_email: str, connection: MySQLResult):
     artists_of_friends = get_artists_in_users(friends_ids, {"descriptors": descriptors}, connection)
 
     excluded_user_s_artists = set(f for f in artists_of_friends if f not in user_artists)
+
+    if len(excluded_user_s_artists) == 0:
+        excluded_user_s_artists = {-1}
 
     return get_artists(excluded_user_s_artists, {"one_random": True}, connection)
 
