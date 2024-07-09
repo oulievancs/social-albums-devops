@@ -33,7 +33,7 @@ pipeline {
                    kubectl set image -f kube/api/deployment.yaml social-albums-api=$DOCKER_USER/$ALBUMS_API_PREFIX:$TAG
                    kubectl set image -f kube/albums-producer/deployment.yaml social-albums-producer=$DOCKER_USER/$ALBUMS_PRODUCER_PREFIX:$TAG
                    kubectl set image -f kube/albums-consumer/deployment.yaml social-albums-consumer=$DOCKER_USER/$ALBUMS_CONSUMER_PREFIX:$TAG
-                   kubectl set image -f kube/albums-consumer/deployment.yaml social-users-consumer=$DOCKER_USER/$USERS_CONSUMER_PREFIX:$TAG
+                   kubectl set image -f kube/users-consumer/deployment.yaml social-users-consumer=$DOCKER_USER/$USERS_CONSUMER_PREFIX:$TAG
                 '''
             }
         }
