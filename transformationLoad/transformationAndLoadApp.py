@@ -244,7 +244,7 @@ def persist_artist_descriptors(descriptors, artist_id, table_name, descr_type, c
 
 def main_users():
     consumer_users = KafkaConsumer(TOPIC_USERS, bootstrap_servers=KAFKA_BROKER,
-                                   value_deserializer=lambda m: json.loads(m.decode("ASCII")))
+                                   value_deserializer=lambda m: json.loads(m.decode("ASCII")), auto_offset_reset="smallest")
 
     for user in consumer_users:
         connection = None
@@ -273,7 +273,7 @@ def main_users():
 
 def main_artists():
     consumer_artists = KafkaConsumer(TOPIC_ARTISTS, bootstrap_servers=KAFKA_BROKER,
-                                     value_deserializer=lambda m: json.loads(m.decode("ASCII")))
+                                     value_deserializer=lambda m: json.loads(m.decode("ASCII")), auto_offset_reset="smallest")
 
     for artist in consumer_artists:
         connection = None

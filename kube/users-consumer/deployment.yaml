@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: social-users-consumer
-          image: angelosnm/users-consumer:01f4061-35
+          image: angelosnm/users-consumer:334e6ab-58
           envFrom:
             - secretRef:
                 name: social-albums-consumer-secrets
