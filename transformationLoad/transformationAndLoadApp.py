@@ -75,14 +75,14 @@ def add_user(user, connection):
         return None
 
     res = mysqlCon.execute(
-        f"""SELECT a.id, a.first_name, a.last_name, a.email, a.gender FROM user AS a WHERE a.email = %s""",
+        f"""SELECT a.id, a.first_name, a.last_name, a.email, a.gender FROM users AS a WHERE a.email = %s""",
         args=(user["email"],),
         mysqlResult=connection
     )
 
     if res.rowcount < 1:
         res = mysqlCon.execute(
-            f"""INSERT INTO user (first_name, last_name, email, gender, ref_aa) VALUES (%s, %s, %s, %s, %s)""",
+            f"""INSERT INTO users (first_name, last_name, email, gender, ref_aa) VALUES (%s, %s, %s, %s, %s)""",
             args=(user["first_name"], user["last_name"], user["email"], user["gender"], user["id"]),
             mysqlResult=connection
 

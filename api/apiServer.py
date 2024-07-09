@@ -129,7 +129,7 @@ def get_user_by_email(email: str, connection: MySQLResult) -> {"id": int, "email
                                                                "last_name": str,
                                                                "gender": str, "ref_aa": int}:
     res_user = mysqlCon.execute(
-        f"""SELECT a.id, a.email, a.first_name, a.last_name, a.gender, a.ref_aa FROM user AS a WHERE a.email = %s""",
+        f"""SELECT a.id, a.email, a.first_name, a.last_name, a.gender, a.ref_aa FROM users AS a WHERE a.email = %s""",
         args=(email,),
         mysqlResult=connection
     )

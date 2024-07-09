@@ -103,7 +103,7 @@ async def get_users(user_email: str = Path(..., description="The email of the us
 
     send_users_metadata(users)
 
-    return JSONResponse(content=data)
+    return JSONResponse(content=json.loads(users))
 
 
 """Functionality regarding the the indexing of a user by the mail

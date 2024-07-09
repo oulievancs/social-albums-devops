@@ -81,7 +81,7 @@ def get_artists(year_from: str = Path(..., func=WebUtils.generate_date_validatio
     artists = WebUtils.parse_json(data)
 
     send_artists_metadata(artists)
-    return JSONResponse(content=data)
+    return JSONResponse(content=json.loads(artists))
 
 
 producer = KafkaProducer(bootstrap_servers=[os.environ.get("KAFKA_BROKER")],
