@@ -16,21 +16,39 @@ spec:
         app: social-albums-consumer
     spec:
       containers:
-      - envFrom:
-          - secretRef:
-              name: social-albums-consumer-secrets
-        image: angelosnm/albums-consumer:01f4061-35
-        name: social-albums-consumer
-      initContainers:
-        - name: wait-for-mysql-pod
-          image: busybox:1.28
-          args:
-            - /bin/sh
-            - -c
-            - until telnet social-albums-mysql 3306; do echo waiting for mysql-service; sleep 2; done;
-        - name: wait-for-kafka-pod
-          image: busybox:1.28
-          args:
-            - /bin/sh
-            - -c
-            - until telnet social-albums-kafka 29092; do echo waiting for kafka; sleep 2; done;
+        - name: social-albums-consumer
+          image: angelosnm/albums-consumer:01f4061-35
+          envFrom:
+            - secretRef:
+                name: social-albums-consumer-secrets
+          initContainers:
+            - name: wait-for-mysql-pod
+              image: busybox:1.28
+              args:
+                - /bin/sh
+                - -c
+                - until telnet social-albums-mysql 3306; do echo waiting for mysql-service; sleep 2; done;
+            - name: wait-for-kafka-pod
+              image: busybox:1.28
+              args:
+                - /bin/sh
+                - -c
+                - until telnet social-albums-kafka 29092; do echo waiting for kafka; sleep 2; done;
+        - name: social-users-consumer
+          image: angelosnm/users-consumer:01f4061-35
+          envFrom:
+            - secretRef:
+                name: social-albums-consumer-secrets
+          initContainers:
+            - name: wait-for-mysql-pod
+              image: busybox:1.28
+              args:
+                - /bin/sh
+                - -c
+                - until telnet social-albums-mysql 3306; do echo waiting for mysql-service; sleep 2; done;
+            - name: wait-for-kafka-pod
+              image: busybox:1.28
+              args:
+                - /bin/sh
+                - -c
+                - until telnet social-albums-kafka 29092; do echo waiting for kafka; sleep 2; done;

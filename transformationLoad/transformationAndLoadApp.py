@@ -4,7 +4,6 @@ import json
 import logging
 import os
 import traceback
-from threading import Thread
 
 from dotenv import load_dotenv
 from kafka import KafkaConsumer
@@ -246,9 +245,11 @@ def persist_artist_descriptors(descriptors, artist_id, table_name, descr_type, c
 def main_users():
     consumer_users = KafkaConsumer(TOPIC_USERS, bootstrap_servers=KAFKA_BROKER,
                                    value_deserializer=lambda m: json.loads(m.decode("ASCII")))
-    connection = None
 
     for user in consumer_users:
+        connection = None
+        logging.log(logging.INFO, f"User Consumed. {user}")
+
         try:
             connection = mysqlCon.pool_connection()
 
@@ -276,6 +277,7 @@ def main_artists():
 
     for artist in consumer_artists:
         connection = None
+        logging.log(logging.INFO, f"Artist Consumed. {artist}")
 
         try:
             connection = mysqlCon.pool_connection()
@@ -294,17 +296,3 @@ def main_artists():
                     connection.close_connection()
             except Exception as e_in:
                 logging.log(logging.ERROR, f"Error while executing artist_consuming. {e_in}, {traceback.format_exc()}")
-
-
-if __name__ == "__main__":
-    logging.basicConfig()
-    logging.root.setLevel(logging.INFO)
-
-    thread_users = Thread(target=main_users)
-    thread_artists = Thread(target=main_artists)
-
-    thread_users.start()
-    thread_artists.start()
-
-    thread_users.join()
-    thread_artists.join()

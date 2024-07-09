@@ -15,10 +15,10 @@ RUN mkdir common
 
 COPY common/ common/
 
-COPY transformationLoad/transformationAndLoadApp.py .
+COPY transformationLoad/* .
 
 RUN chown -R appuser:appuser .
 
 USER appuser:appuser
 
-CMD ["python", "transformationAndLoadApp.py"]
+CMD ["python", "consumeAlbums.py"]
