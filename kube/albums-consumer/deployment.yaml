@@ -21,6 +21,8 @@ spec:
           envFrom:
             - secretRef:
                 name: social-albums-consumer-secrets
+            - secretRef:
+                name: social-albums-kafka-secrets
       initContainers:
         - name: wait-for-mysql-pod
           image: busybox:1.28

@@ -136,16 +136,22 @@ KAFKA_BROKER=social-albums-kafka
 KAFKA_TOPIC_USERS=users-topic
 KAFKA_TOPIC_ARTISTS=bands-topic
 ```
+
+#### Kafka
+```
+kubectl create secret -n social-albums generic social-albums-kafka-secrets \
+  --from-literal=KAFKA_BROKER=social-albums-kafka:29092 \
+  --from-literal=KAFKA_TOPIC_USERS=users-topic \
+  --from-literal=KAFKA_TOPIC_ARTISTS=artists-topic
+```
+
 ```
 kubectl create secret -n social-albums generic social-albums-consumer-secrets \
   --from-literal=MYSQL_DB_HOST=social-albums-mysql \
   --from-literal=MYSQL_DB_PORT=3306 \
   --from-literal=MYSQL_DB_NAME=social_music \
   --from-literal=MYSQL_DB_USERNAME=koukos \
-  --from-literal=MYSQL_DB_PASSWORD=kx12kx12 \
-  --from-literal=KAFKA_BROKER=social-albums-kafka:29092 \
-  --from-literal=KAFKA_TOPIC_USERS=users-topic \
-  --from-literal=KAFKA_TOPIC_ARTISTS=artists-topic
+  --from-literal=MYSQL_DB_PASSWORD=kx12kx12
 ````
 #### albums-producer
 ```

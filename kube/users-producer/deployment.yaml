@@ -21,14 +21,16 @@ spec:
               name: users-producer-secrets
           - secretRef:
               name: social-albums-keycloak-config-secrets
+          - secretRef:
+              name: social-albums-kafka-secrets
         image: angelosnm/users-producer:58174ab-33
         env:
           - name: KAFKA_BROKER
-            value: social-albums-kafka:29092
+            value: "social-albums-kafka:29092"
           - name: KAFKA_TOPIC_USERS
-            value: users-topic
+            value: "users-topic"
           - name: KAFKA_TOPIC_ARTISTS
-            value: artists-topic
+            value: "artists-topic"
         name: social-users-producer
       initContainers:
         - name: wait-for-neo4j-pod

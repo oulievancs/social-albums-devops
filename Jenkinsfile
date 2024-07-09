@@ -35,6 +35,12 @@ pipeline {
                    kubectl set image -f kube/albums-producer/deployment.yaml social-albums-producer=$DOCKER_USER/$ALBUMS_PRODUCER_PREFIX:$TAG
                    kubectl set image -f kube/albums-consumer/deployment.yaml social-albums-consumer=$DOCKER_USER/$ALBUMS_CONSUMER_PREFIX:$TAG
                    kubectl set image -f kube/users-consumer/deployment.yaml social-users-consumer=$DOCKER_USER/$USERS_CONSUMER_PREFIX:$TAG
+
+                   kubectl apply -f kube/zookeper -n social-albums
+                   kubectl apply -f kube/kafka -n social-albums
+                   kubectl apply -k kube/neo4j -n social-albums
+                   kubectl apply -k kube/mysql -n social-albums
+                   kubectl apply -k kube/mongo -n social-albums
                 '''
             }
         }
