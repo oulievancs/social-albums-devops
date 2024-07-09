@@ -29,6 +29,7 @@ pipeline {
                    docker push $DOCKER_USER/$ALBUMS_API_PREFIX --all-tags
                    docker push $DOCKER_USER/$ALBUMS_PRODUCER_PREFIX --all-tags
                    docker push $DOCKER_USER/$ALBUMS_CONSUMER_PREFIX --all-tags
+                   docker push $DOCKER_USER/$USERS_CONSUMER_PREFIX --all-tags
                    kubectl set image -f kube/users-producer/deployment.yaml social-users-producer=$DOCKER_USER/$USERS_PRODUCER_PREFIX:$TAG              
                    kubectl set image -f kube/api/deployment.yaml social-albums-api=$DOCKER_USER/$ALBUMS_API_PREFIX:$TAG
                    kubectl set image -f kube/albums-producer/deployment.yaml social-albums-producer=$DOCKER_USER/$ALBUMS_PRODUCER_PREFIX:$TAG
