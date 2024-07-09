@@ -142,10 +142,11 @@ class MySqlConnection:
 
         cursor.reset()
 
+        vsql = f"""{sql};"""
         if args:
-            cursor.execute(sql, args)
+            cursor.execute(vsql, args)
         else:
-            cursor.execute(sql)
+            cursor.execute(vsql)
 
         if commit:
             connection.commit()
