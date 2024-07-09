@@ -1,4 +1,6 @@
 """A unit regarding the functinality for MySQL database."""
+import logging
+
 import mysql.connector.pooling
 
 """Class regarding the MySQL result set."""
@@ -142,11 +144,11 @@ class MySqlConnection:
 
         cursor.reset()
 
-        vsql = f"""{sql};"""
+        logging.debug(f"""Sql debug: {sql}""")
         if args:
-            cursor.execute(vsql, args)
+            cursor.execute(sql, args)
         else:
-            cursor.execute(vsql)
+            cursor.execute(sql)
 
         if commit:
             connection.commit()

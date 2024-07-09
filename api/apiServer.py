@@ -57,7 +57,7 @@ app.add_middleware(
 @app.on_event("startup")
 async def on_startup():
     logging.basicConfig()
-    logging.root.setLevel(logging.INFO)
+    logging.root.setLevel(logging.DEBUG)
 
 
 """Route accepting a user's mail that belongs to a user and return a suggestion of albums and artists
